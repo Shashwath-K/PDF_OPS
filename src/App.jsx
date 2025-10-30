@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import PdfCombine from "./PdfCombine";
+import PdfMain from "./PdfMain";
 import PdfCompress from "./PdfCompress";
 import ZipFolder from "./ZipFolder";
 
