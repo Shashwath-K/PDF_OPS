@@ -1,0 +1,290 @@
+/* ==============================
+   🌟 PDF TOOLKIT GLOBAL STYLES
+   ============================== */
+
+/* Global Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* App Container */
+body {
+  font-family: "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #f6f8fc 0%, #e9eef9 100%);
+  color: #2d3748;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+}
+
+/* Smooth transitions for everything */
+*,
+*:before,
+*:after {
+  transition: all 0.25s ease-in-out;
+}
+
+/* ======================
+   🔹 Main Card Layout
+   ====================== */
+.max-w-4xl {
+  max-width: 960px;
+}
+
+.bg-white {
+  background: #ffffff;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.rounded-lg {
+  border-radius: 16px;
+}
+
+/* ======================
+   🔹 Header
+   ====================== */
+h1 {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+  position: relative;
+  display: inline-block;
+}
+
+h1::after {
+  content: "";
+  display: block;
+  width: 60%;
+  height: 3px;
+  background: #3b82f6;
+  margin: 6px auto 0;
+  border-radius: 3px;
+}
+
+/* ======================
+   🔹 Tabs Navigation
+   ====================== */
+.flex.border-b {
+  border-color: #e5e7eb;
+  position: relative;
+}
+
+.flex.border-b > div {
+  position: relative;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.flex.border-b > div:hover {
+  background: #f3f4f6;
+}
+
+.flex.border-b > div.active-tab {
+  color: #2563eb;
+  border-bottom: 3px solid #2563eb;
+}
+
+/* Tab hover underline animation */
+.flex.border-b > div::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 50%;
+  width: 0%;
+  height: 2px;
+  background: #2563eb;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.flex.border-b > div:hover::after {
+  width: 80%;
+}
+
+/* ======================
+   🔹 File Inputs
+   ====================== */
+input[type="file"] {
+  font-size: 0.95rem;
+  background-color: #f9fafb;
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 14px;
+  width: 100%;
+  cursor: pointer;
+  color: #374151;
+  transition: all 0.25s ease;
+}
+
+input[type="file"]:hover {
+  background-color: #f1f5f9;
+  border-color: #3b82f6;
+}
+
+input[type="file"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ======================
+   🔹 Buttons
+   ====================== */
+button {
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button span {
+  font-weight: 400;
+  opacity: 0.85;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Blue (Primary) */
+.bg-blue-600 {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+}
+
+.bg-blue-600:hover {
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
+}
+
+/* Red (Danger) */
+.bg-red-600 {
+  background: linear-gradient(90deg, #dc2626, #b91c1c);
+}
+
+.bg-red-600:hover {
+  background: linear-gradient(90deg, #b91c1c, #dc2626);
+}
+
+/* Green (Success) */
+.bg-green-600 {
+  background: linear-gradient(90deg, #16a34a, #15803d);
+}
+
+.bg-green-600:hover {
+  background: linear-gradient(90deg, #15803d, #16a34a);
+}
+
+/* Gray (Disabled) */
+.bg-gray-400 {
+  background: #9ca3af !important;
+}
+
+/* ======================
+   🔹 Loading Overlay
+   ====================== */
+.fixed.inset-0 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.bg-black.bg-opacity-60 {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
+  width: 60px;
+  height: 60px;
+  border: 6px solid transparent;
+  border-top-color: #3b82f6;
+  border-right-color: #2563eb;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+/* ======================
+   🔹 Message Area
+   ====================== */
+.text-center.text-gray-700 {
+  background: #f9fafb;
+  padding: 14px 20px;
+  border-left: 4px solid #2563eb;
+  border-radius: 8px;
+  font-size: 0.98rem;
+  line-height: 1.5;
+  margin-top: 16px;
+  transition: background 0.3s ease;
+}
+
+.text-center.text-gray-700:hover {
+  background: #f1f5f9;
+}
+
+/* ======================
+   🔹 Responsive Design
+   ====================== */
+@media (max-width: 768px) {
+  body {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+  }
+
+  button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .flex.flex-wrap.gap-4 {
+    flex-direction: column;
+  }
+}
+
+/* ======================
+   🔹 Fancy Scrollbar
+   ====================== */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #3b82f6, #2563eb);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #1e3a8a, #2563eb);
+}
