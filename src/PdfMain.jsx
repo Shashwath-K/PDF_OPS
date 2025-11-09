@@ -1,4 +1,3 @@
-// PdfMain.jsx
 import React, { useEffect, useState } from "react";
 
 function PdfMain({ Component, activeComponent }) {
@@ -11,14 +10,18 @@ function PdfMain({ Component, activeComponent }) {
   const [pakoLib, setPakoLib] = useState(null);
   const [jszip, setJszip] = useState(null);
 
-  // Load libraries dynamically
   useEffect(() => {
-    const loadLibraries = async () => {
+    async function loadLibraries() {
       try {
         setIsLoading(true);
         setMessage("Loading PDF libraries...");
 
-        const [pdfLibModule, pdfjsModule, pakoModule, jszipModule] = await Promise.all([
+        const [
+          pdfLibModule,
+          pdfjsModule,
+          pakoModule,
+          jszipModule,
+        ] = await Promise.all([
           import("https://cdn.jsdelivr.net/npm/pdf-lib@^1.17.1/dist/pdf-lib.esm.js"),
           import("https://cdn.jsdelivr.net/npm/pdfjs-dist@^4.0.379/build/pdf.mjs"),
           import("https://cdn.jsdelivr.net/npm/pako@^2.1.0/dist/pako.esm.mjs"),
@@ -31,22 +34,23 @@ function PdfMain({ Component, activeComponent }) {
         setPdfLib(pdfLibModule);
         setPdfjs(pdfjsModule);
         setPakoLib(pakoModule);
-        setJszip(jszipModule);
+        // Fix jszip import: use default export if exists
+        setJszip(jszipModule.default || jszipModule);
 
         setLibsLoaded(true);
         setMessage("Libraries loaded successfully. Ready to use!");
-      } catch (e) {
-        console.error("Error loading libraries:", e);
-        setMessage(`Error loading libraries: ${e.message}`);
+      } catch (error) {
+        console.error("Error loading libraries:", error);
+        setMessage(`Error loading libraries: ${error.message}`);
       } finally {
         setIsLoading(false);
       }
-    };
+    }
 
     loadLibraries();
   }, []);
 
-  /** Trigger browser file download */
+  // Utility to trigger file downloads in the browser
   const triggerDownload = (bytes, fileName, mimeType = "application/octet-stream") => {
     try {
       const blob = new Blob([bytes], { type: mimeType });
@@ -58,13 +62,11 @@ function PdfMain({ Component, activeComponent }) {
       document.body.removeChild(link);
       URL.revokeObjectURL(link.href);
       setMessage(`✅ File "${fileName}" downloaded successfully.`);
-    } catch (e) {
-      console.error("Download failed:", e);
-      setMessage(`❌ Download failed: ${e.message}`);
+    } catch (error) {
+      console.error("Download failed:", error);
+      setMessage(`❌ Download failed: ${error.message}`);
     }
   };
-
-  const uiDisabled = isLoading || !libsLoaded;
 
   const styles = {
     loader: "w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin",
@@ -75,12 +77,12 @@ function PdfMain({ Component, activeComponent }) {
       {/* Loading Overlay */}
       {isLoading && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center z-50">
-          <div className={styles.loader}></div>
+          <div className={styles.loader} aria-label="Loading spinner"></div>
           <p className="text-white text-lg mt-4">{message || "Processing..."}</p>
         </div>
       )}
 
-      {/* Render the active operation */}
+      {/* Active PDF operation component */}
       {Component && (
         <Component
           libsLoaded={libsLoaded}
@@ -92,11 +94,12 @@ function PdfMain({ Component, activeComponent }) {
           setMessage={setMessage}
           setIsLoading={setIsLoading}
           isLoading={isLoading}
+          activeComponent={activeComponent}
         />
       )}
 
-      {/* Message */}
-      {message && !isLoading && (
+      {/* Status Message */}
+      {!isLoading && message && (
         <p className="mt-6 text-center text-gray-700 font-medium">{message}</p>
       )}
     </div>

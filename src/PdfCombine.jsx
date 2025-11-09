@@ -1,4 +1,4 @@
-// PdfCombine.jsx
+// src/PdfCombine.jsx
 import React, { useState } from "react";
 
 function PdfCombine({
@@ -12,7 +12,7 @@ function PdfCombine({
 }) {
   const [filesToCombine, setFilesToCombine] = useState([]);
 
-  /** Handle file selection */
+  // Handle selection of multiple PDF files
   const handleCombineFiles = (e) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
@@ -21,7 +21,7 @@ function PdfCombine({
     }
   };
 
-  /** Combine multiple PDFs using pdf-lib */
+  /** Combine PDFs in the selected order */
   const combinePdfs = async () => {
     if (filesToCombine.length < 2) {
       setMessage("Please select at least two PDF files to combine.");
@@ -45,6 +45,7 @@ function PdfCombine({
         },
       };
 
+      // Load and append pages from each selected PDF
       for (const file of filesToCombine) {
         const fileBytes = await file.arrayBuffer();
         const pdf = await pdfLib.PDFDocument.load(fileBytes, {
@@ -56,17 +57,20 @@ function PdfCombine({
         pages.forEach((page) => mergedPdf.addPage(page));
       }
 
+      // Save merged PDF and trigger download
       const mergedPdfBytes = await mergedPdf.save(pakoOptions);
       triggerDownload(mergedPdfBytes, "combined.pdf", "application/pdf");
       setFilesToCombine([]);
-    } catch (e) {
-      console.error("Error combining PDFs:", e);
-      setMessage(`Error: ${e.message}. One of the PDFs might be corrupt or encrypted.`);
+      setMessage("PDFs combined successfully!");
+    } catch (error) {
+      console.error("Error combining PDFs:", error);
+      setMessage(`Error: ${error.message}. One of the PDFs might be corrupt or encrypted.`);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Styles
   const styles = {
     fileInput:
       "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4",

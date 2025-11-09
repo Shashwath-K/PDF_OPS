@@ -1,4 +1,3 @@
-// ZipFolder.jsx
 import React, { useState } from "react";
 
 function ZipFolder({
@@ -11,7 +10,7 @@ function ZipFolder({
 }) {
   const [filesToZip, setFilesToZip] = useState([]);
 
-  /** Handle folder (or multiple file) selection */
+  // Handle selection of multiple files or folders
   const handleFolderSelect = (e) => {
     if (e.target.files) {
       const selected = Array.from(e.target.files);
@@ -21,8 +20,8 @@ function ZipFolder({
   };
 
   /**
-   * Compress selected folder/files into a ZIP archive.
-   * @param {'min' | 'mid' | 'max'} level
+   * Compress selected files/folder into a ZIP archive
+   * @param {'min'|'mid'|'max'} level Compression level
    */
   const compressFolder = async (level) => {
     if (filesToZip.length === 0) {
@@ -36,6 +35,7 @@ function ZipFolder({
 
     setIsLoading(true);
 
+    // Compression settings based on level
     let compression = "DEFLATE";
     let compressionOptions = { level: 6 };
     let levelName = "Mid";
@@ -52,9 +52,10 @@ function ZipFolder({
     setMessage(`Compressing folder (${levelName})... please wait.`);
 
     try {
+      // jszip is a class constructor because of fix, so instantiate directly
       const zip = new jszip();
 
-      // Add each file to the zip
+      // Add all selected files to the zip, preserving folder structure
       for (const file of filesToZip) {
         const path = file.webkitRelativePath || file.name;
         zip.file(path, file, {
@@ -63,12 +64,12 @@ function ZipFolder({
         });
       }
 
-      // Generate zip content with live progress reporting
+      // Generate ZIP file with progress updates
       const content = await zip.generateAsync(
         {
           type: "uint8array",
-          compression: "DEFLATE",
-          compressionOptions: { level: 6 },
+          compression,
+          compressionOptions: compressionOptions || undefined,
         },
         (metadata) => {
           if (metadata.currentFile) {
@@ -81,16 +82,19 @@ function ZipFolder({
         }
       );
 
+      // Trigger file download and reset selection
       triggerDownload(content, `folder-${levelName}.zip`, "application/zip");
       setFilesToZip([]);
-    } catch (e) {
-      console.error("Error compressing folder:", e);
-      setMessage(`Error: ${e.message}`);
+      setMessage(`Folder compressed (${levelName}) successfully!`);
+    } catch (error) {
+      console.error("Error compressing folder:", error);
+      setMessage(`Error: ${error.message}`);
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Styles for inputs and buttons
   const styles = {
     fileInput:
       "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4",
@@ -123,8 +127,7 @@ function ZipFolder({
       </p>
 
       <label className="text-gray-600 mb-2 block text-sm">
-        Note: Folder selection (via “Choose Folder”) may not be supported in
-        all browsers — works best in Chrome or Edge.
+        Note: Folder selection (via “Choose Folder”) may not be supported in all browsers — works best in Chrome or Edge.
       </label>
 
       <input

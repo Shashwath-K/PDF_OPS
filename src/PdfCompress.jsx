@@ -1,4 +1,4 @@
-// PdfCompress.jsx
+// src/PdfCompress.jsx
 import React, { useState } from "react";
 
 function PdfCompress({
@@ -13,7 +13,7 @@ function PdfCompress({
 }) {
   const [fileToCompress, setFileToCompress] = useState(null);
 
-  /** Handle single PDF file selection */
+  // Handle PDF file selection
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
       const selected = e.target.files[0];
@@ -23,8 +23,8 @@ function PdfCompress({
   };
 
   /**
-   * Compress PDF using a lossy re-rendering method.
-   * @param {'small' | 'max'} level - Compression level.
+   * Compress PDF by rendering each page as JPEG and rebuilding the PDF.
+   * @param {'small'|'max'} level Compression quality level
    */
   const compressPdf = async (level) => {
     if (!fileToCompress) {
@@ -53,15 +53,15 @@ function PdfCompress({
     };
 
     try {
-      // Step 1: Load the file as bytes
+      // Load file bytes
       const fileBytes = await fileToCompress.arrayBuffer();
 
-      // Step 2: Use pdf.js to render pages
+      // Load PDF with pdf.js
       const loadingTask = pdfjs.getDocument({ data: fileBytes });
       const pdf = await loadingTask.promise;
       const totalPages = pdf.numPages;
 
-      // Step 3: Create a new PDF with pdf-lib
+      // Create new PDF document with pdf-lib
       const newPdf = await pdfLib.PDFDocument.create();
 
       for (let i = 1; i <= totalPages; i++) {
@@ -70,7 +70,7 @@ function PdfCompress({
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale });
 
-        // Render the page to canvas
+        // Render page to canvas
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         canvas.width = Math.floor(viewport.width);
@@ -79,11 +79,11 @@ function PdfCompress({
         const renderContext = { canvasContext: ctx, viewport };
         await page.render(renderContext).promise;
 
-        // Convert to JPEG image
+        // Convert canvas to JPEG image
         const jpgDataUrl = canvas.toDataURL("image/jpeg", quality);
         const jpgImage = await newPdf.embedJpg(jpgDataUrl);
 
-        // Add a page and draw the image
+        // Add new page and draw JPEG
         const newPage = newPdf.addPage([viewport.width, viewport.height]);
         newPage.drawImage(jpgImage, {
           x: 0,
@@ -92,28 +92,25 @@ function PdfCompress({
           height: viewport.height,
         });
 
-        // Clean up memory
+        // Clean up
         page.cleanup();
         canvas.remove();
       }
 
-      // Step 4: Save and download
+      // Save and trigger download
       const compressedBytes = await newPdf.save(pakoOptions);
-      triggerDownload(
-        compressedBytes,
-        `compressed-${level}.pdf`,
-        "application/pdf"
-      );
-    } catch (e) {
-      console.error("Error compressing PDF:", e);
+      triggerDownload(compressedBytes, `compressed-${level}.pdf`, "application/pdf");
+    } catch (error) {
+      console.error("Error compressing PDF:", error);
       setMessage(
-        `Error: ${e.message}. The PDF might be corrupt, encrypted, or too large to process.`
+        `Error: ${error.message}. The PDF might be corrupt, encrypted, or too large to process.`
       );
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Styles
   const styles = {
     fileInput:
       "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4",
@@ -138,8 +135,7 @@ function PdfCompress({
     <div>
       <h2 className="text-2xl font-semibold mb-4">Compress PDF</h2>
       <p className="text-gray-600 mb-4">
-        Select a single PDF file to compress. This method re-renders each page
-        as an image, reducing file size but making text unselectable.
+        Select a single PDF file to compress. This method re-renders each page as an image, reducing file size but making text unselectable.
       </p>
 
       <input
