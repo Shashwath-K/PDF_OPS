@@ -1,5 +1,6 @@
 // src/PdfCompress.jsx
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 function PdfCompress({
   libsLoaded,
@@ -13,7 +14,7 @@ function PdfCompress({
 }) {
   const [fileToCompress, setFileToCompress] = useState(null);
 
-  // Handle PDF file selection
+  // Handle single PDF file selection
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
       const selected = e.target.files[0];
@@ -23,8 +24,8 @@ function PdfCompress({
   };
 
   /**
-   * Compress PDF by rendering each page as JPEG and rebuilding the PDF.
-   * @param {'small'|'max'} level Compression quality level
+   * Compress PDF using a lossy re-rendering method.
+   * @param {'small' | 'max'} level - Compression level.
    */
   const compressPdf = async (level) => {
     if (!fileToCompress) {
@@ -37,7 +38,6 @@ function PdfCompress({
     }
 
     setIsLoading(true);
-
     const quality = level === "small" ? 0.8 : 0.5;
     const scale = level === "small" ? 1.5 : 1.0;
     const label = level === "small" ? "Small Compression" : "Max Compression";
@@ -53,20 +53,14 @@ function PdfCompress({
     };
 
     try {
-      // Load file bytes
       const fileBytes = await fileToCompress.arrayBuffer();
-
-      // Load PDF with pdf.js
       const loadingTask = pdfjs.getDocument({ data: fileBytes });
       const pdf = await loadingTask.promise;
       const totalPages = pdf.numPages;
-
-      // Create new PDF document with pdf-lib
       const newPdf = await pdfLib.PDFDocument.create();
 
       for (let i = 1; i <= totalPages; i++) {
         setMessage(`Compressing page ${i} of ${totalPages}...`);
-
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale });
 
@@ -75,101 +69,79 @@ function PdfCompress({
         const ctx = canvas.getContext("2d");
         canvas.width = Math.floor(viewport.width);
         canvas.height = Math.floor(viewport.height);
-
         const renderContext = { canvasContext: ctx, viewport };
         await page.render(renderContext).promise;
 
-        // Convert canvas to JPEG image
+        // Embed JPEG image into new PDF
         const jpgDataUrl = canvas.toDataURL("image/jpeg", quality);
         const jpgImage = await newPdf.embedJpg(jpgDataUrl);
 
-        // Add new page and draw JPEG
         const newPage = newPdf.addPage([viewport.width, viewport.height]);
-        newPage.drawImage(jpgImage, {
-          x: 0,
-          y: 0,
-          width: viewport.width,
-          height: viewport.height,
-        });
+        newPage.drawImage(jpgImage, { x: 0, y: 0, width: viewport.width, height: viewport.height });
 
-        // Clean up
         page.cleanup();
         canvas.remove();
       }
 
-      // Save and trigger download
       const compressedBytes = await newPdf.save(pakoOptions);
       triggerDownload(compressedBytes, `compressed-${level}.pdf`, "application/pdf");
     } catch (error) {
       console.error("Error compressing PDF:", error);
-      setMessage(
-        `Error: ${error.message}. The PDF might be corrupt, encrypted, or too large to process.`
-      );
+      setMessage(`Error: ${error.message}. The PDF might be corrupt, encrypted, or too large.`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Styles
-  const styles = {
-    fileInput:
-      "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4",
-    button: (disabled, color = "blue") => {
-      const base =
-        "px-6 py-3 text-white font-bold rounded-lg shadow-md focus:outline-none transition-colors";
-      const colors = {
-        blue: disabled
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-blue-600 hover:bg-blue-700",
-        red: disabled
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-red-600 hover:bg-red-700",
-      };
-      return `${base} ${colors[color]}`;
-    },
-  };
-
-  const uiDisabled = isLoading || !libsLoaded;
+  const isDisabled = isLoading || !libsLoaded || !fileToCompress;
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Compress PDF</h2>
-      <p className="text-gray-600 mb-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-xl mx-auto"
+    >
+      <h2 className="text-2xl font-bold mb-6 text-center text-blue-800">Compress PDF</h2>
+      <p className="mb-6 text-gray-600 text-center">
         Select a single PDF file to compress. This method re-renders each page as an image, reducing file size but making text unselectable.
       </p>
 
       <input
         type="file"
         accept="application/pdf"
-        className={styles.fileInput}
+        disabled={isDisabled}
         onChange={handleFileSelect}
-        disabled={uiDisabled}
+        className="block w-full mb-6 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-gray-50"
       />
 
-      <div className="flex flex-wrap gap-4">
-        <button
-          className={styles.button(!fileToCompress || uiDisabled, "blue")}
+      <div className="flex gap-4 justify-center flex-wrap">
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          disabled={isDisabled}
           onClick={() => compressPdf("small")}
-          disabled={!fileToCompress || uiDisabled}
+          className={`px-6 py-3 rounded-lg font-semibold text-white shadow-md transition-colors ${
+            isDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           Small Compression
-          <span className="block text-xs font-normal">
-            (Better Quality, Larger File)
-          </span>
-        </button>
+          <span className="block text-xs font-normal mt-1">(Better Quality, Larger File)</span>
+        </motion.button>
 
-        <button
-          className={styles.button(!fileToCompress || uiDisabled, "red")}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          disabled={isDisabled}
           onClick={() => compressPdf("max")}
-          disabled={!fileToCompress || uiDisabled}
+          className={`px-6 py-3 rounded-lg font-semibold text-white shadow-md transition-colors ${
+            isDisabled ? "bg-gray-400 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"
+          }`}
         >
           Max Compression
-          <span className="block text-xs font-normal">
-            (Lower Quality, Smaller File)
-          </span>
-        </button>
+          <span className="block text-xs font-normal mt-1">(Lower Quality, Smaller File)</span>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 

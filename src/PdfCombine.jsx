@@ -1,5 +1,6 @@
 // src/PdfCombine.jsx
 import React, { useState } from "react";
+import { motion } from "framer-motion";
 
 function PdfCombine({
   libsLoaded,
@@ -12,7 +13,6 @@ function PdfCombine({
 }) {
   const [filesToCombine, setFilesToCombine] = useState([]);
 
-  // Handle selection of multiple PDF files
   const handleCombineFiles = (e) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
@@ -21,7 +21,6 @@ function PdfCombine({
     }
   };
 
-  /** Combine PDFs in the selected order */
   const combinePdfs = async () => {
     if (filesToCombine.length < 2) {
       setMessage("Please select at least two PDF files to combine.");
@@ -45,7 +44,6 @@ function PdfCombine({
         },
       };
 
-      // Load and append pages from each selected PDF
       for (const file of filesToCombine) {
         const fileBytes = await file.arrayBuffer();
         const pdf = await pdfLib.PDFDocument.load(fileBytes, {
@@ -57,7 +55,6 @@ function PdfCombine({
         pages.forEach((page) => mergedPdf.addPage(page));
       }
 
-      // Save merged PDF and trigger download
       const mergedPdfBytes = await mergedPdf.save(pakoOptions);
       triggerDownload(mergedPdfBytes, "combined.pdf", "application/pdf");
       setFilesToCombine([]);
@@ -70,45 +67,43 @@ function PdfCombine({
     }
   };
 
-  // Styles
-  const styles = {
-    fileInput:
-      "block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none p-2.5 mb-4",
-    button: (disabled) =>
-      `px-6 py-3 text-white font-bold rounded-lg shadow-md focus:outline-none ${
-        disabled
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-blue-600 hover:bg-blue-700 transition-colors"
-      }`,
-  };
-
-  const uiDisabled = isLoading || !libsLoaded;
+  const isDisabled = isLoading || !libsLoaded || filesToCombine.length < 2;
 
   return (
-    <div>
-      <h2 className="text-2xl font-semibold mb-4">Combine Multiple PDFs</h2>
-      <p className="text-gray-600 mb-4">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-xl mx-auto"
+    >
+      <h2 className="text-2xl font-bold mb-6 text-center text-blue-800">Combine Multiple PDFs</h2>
+      <p className="mb-6 text-gray-600 text-center">
         Select two or more PDF files. They will be merged in the order you selected them.
       </p>
 
       <input
         type="file"
-        accept="application/pdf"
         multiple
-        className={styles.fileInput}
+        accept="application/pdf"
         onChange={handleCombineFiles}
-        disabled={uiDisabled}
+        disabled={isDisabled}
+        className="block w-full mb-6 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-gray-50"
       />
 
-      <button
-        className={styles.button(filesToCombine.length < 2 || uiDisabled)}
+      <motion.button
+        whileTap={{ scale: 0.95 }}
+        disabled={isDisabled}
         onClick={combinePdfs}
-        disabled={filesToCombine.length < 2 || uiDisabled}
+        className={`w-full sm:w-auto px-6 py-3 rounded-lg font-semibold text-white shadow-md transition-colors ${
+          isDisabled
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+        }`}
       >
-        Combine{" "}
-        {filesToCombine.length > 0 ? `(${filesToCombine.length}) Files` : "PDFs"}
-      </button>
-    </div>
+        Combine {filesToCombine.length > 0 ? `(${filesToCombine.length}) Files` : "PDFs"}
+      </motion.button>
+    </motion.div>
   );
 }
 

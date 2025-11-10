@@ -1,6 +1,7 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { motion } from "framer-motion";
 import PdfMain from "./PdfMain";
 import PdfCombine from "./PdfCombine";
 import PdfCompress from "./PdfCompress";
@@ -22,6 +23,7 @@ function App() {
             PDF Toolkit
           </h1>
         </motion.header>
+
         <main className="flex-1 w-full">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
             <Navigation />
@@ -34,21 +36,15 @@ function App() {
               <Routes>
                 <Route
                   path="/"
-                  element={
-                    <PdfMain activeComponent="combine" Component={PdfCombine} />
-                  }
+                  element={<PdfMain activeComponent="combine" Component={PdfCombine} />}
                 />
                 <Route
                   path="/compress"
-                  element={
-                    <PdfMain activeComponent="compress" Component={PdfCompress} />
-                  }
+                  element={<PdfMain activeComponent="compress" Component={PdfCompress} />}
                 />
                 <Route
                   path="/zip"
-                  element={
-                    <PdfMain activeComponent="zip" Component={ZipFolder} />
-                  }
+                  element={<PdfMain activeComponent="zip" Component={ZipFolder} />}
                 />
               </Routes>
             </motion.section>

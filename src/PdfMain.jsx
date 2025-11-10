@@ -1,4 +1,6 @@
+// src/PdfMain.jsx
 import React, { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 function PdfMain({ Component, activeComponent }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,7 +36,6 @@ function PdfMain({ Component, activeComponent }) {
         setPdfLib(pdfLibModule);
         setPdfjs(pdfjsModule);
         setPakoLib(pakoModule);
-        // Fix jszip import: use default export if exists
         setJszip(jszipModule.default || jszipModule);
 
         setLibsLoaded(true);
@@ -50,7 +51,6 @@ function PdfMain({ Component, activeComponent }) {
     loadLibraries();
   }, []);
 
-  // Utility to trigger file downloads in the browser
   const triggerDownload = (bytes, fileName, mimeType = "application/octet-stream") => {
     try {
       const blob = new Blob([bytes], { type: mimeType });
@@ -68,39 +68,55 @@ function PdfMain({ Component, activeComponent }) {
     }
   };
 
-  const styles = {
-    loader: "w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin",
-  };
-
   return (
-    <div>
+    <div className="relative">
       {/* Loading Overlay */}
-      {isLoading && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex flex-col justify-center items-center z-50">
-          <div className={styles.loader} aria-label="Loading spinner"></div>
-          <p className="text-white text-lg mt-4">{message || "Processing..."}</p>
-        </div>
-      )}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div
+              className="w-14 h-14 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"
+              aria-label="Loading spinner"
+            ></div>
+            <p className="text-white text-lg mt-6 font-semibold text-center px-4 max-w-xs">
+              {message || "Processing..."}
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Active PDF operation component */}
+      {/* Render the active PDF operation */}
       {Component && (
-        <Component
-          libsLoaded={libsLoaded}
-          pdfLib={pdfLib}
-          pdfjs={pdfjs}
-          pakoLib={pakoLib}
-          jszip={jszip}
-          triggerDownload={triggerDownload}
-          setMessage={setMessage}
-          setIsLoading={setIsLoading}
-          isLoading={isLoading}
-          activeComponent={activeComponent}
-        />
+        <motion.div
+          key={activeComponent}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Component
+            libsLoaded={libsLoaded}
+            pdfLib={pdfLib}
+            pdfjs={pdfjs}
+            pakoLib={pakoLib}
+            jszip={jszip}
+            triggerDownload={triggerDownload}
+            setMessage={setMessage}
+            setIsLoading={setIsLoading}
+            isLoading={isLoading}
+            activeComponent={activeComponent}
+          />
+        </motion.div>
       )}
 
       {/* Status Message */}
       {!isLoading && message && (
-        <p className="mt-6 text-center text-gray-700 font-medium">{message}</p>
+        <p className="mt-8 text-center text-gray-700 font-medium select-none">{message}</p>
       )}
     </div>
   );

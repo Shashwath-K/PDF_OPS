@@ -2,12 +2,12 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { motion } from "framer-motion";
-import PdfMain from "./PdfMain";
-import PdfCombine from "./PdfCombine";
-import PdfCompress from "./PdfCompress";
-import ZipFolder from "./ZipFolder";
-import Navigation from "./components/Navigation";
-import Footer from "./components/Footer";
+import PdfMain from "../PdfMain";
+import PdfCombine from "../PdfCombine";
+import PdfCompress from "../PdfCompress";
+import ZipFolder from "../ZipFolder";
+import Navigation from "./Navigation";
+import Footer from "./Footer";
 
 function App() {
   return (
