@@ -58,7 +58,7 @@ const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
       </header>
       <main
         ref={mainRef} // The ref is created here
-        className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 overflow-y-auto"
+          className="layout-container flex-1 pb-16 overflow-y-auto"
       >
         <motion.section
           initial={{ opacity: 0, y: 32 }}
@@ -67,20 +67,7 @@ const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
           // --- 3. Added dark: variants to the main content card ---
           className="bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-2xl shadow-lg p-6 mt-4"
         >
-          <Routes>
-            <Route
-              path="/"
-              element={<PdfMain activeComponent="combine" Component={PdfCombine} />}
-            />
-            <Route
-              path="/compress"
-              element={<PdfMain activeComponent="compress" Component={PdfCompress} />}
-            />
-            <Route
-              path="/zip"
-              element={<PdfMain activeComponent="zip" Component={ZipFolder} />}
-            />
-          </Routes>
+          <PdfMain />
         </motion.section>
       </main>
       <Footer />

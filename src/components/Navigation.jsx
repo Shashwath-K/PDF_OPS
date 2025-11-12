@@ -1,23 +1,22 @@
 import React from "react";
-// --- 1. Use NavLink, and DO NOT import BrowserRouter ---
 import { NavLink } from "react-router-dom";
-import { SunIcon, MoonIcon } from "@heroicons/react/24/solid"; // (Install @heroicons/react for this)
+import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 
-// --- 2. Accept the theme props from App.jsx ---
+// Accept the props from App.jsx
 const Navigation = ({ toggleTheme, currentTheme }) => {
+  // Define classes for NavLink to keep the return statement clean
   const commonLinkClass =
-    "font-medium rounded-md px-3 py-1 transition-all duration-150";
+    "font-medium rounded-lg px-3 py-2 transition-colors duration-200";
   const activeLinkClass =
-    "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-100";
+    "bg-primary-100 text-primary-700 dark:bg-primary-800 dark:text-primary-100";
   const inactiveLinkClass =
-    "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700";
+    "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700";
 
   return (
-    // --- 3. NO <Router> wrapper here! Just the <nav> ---
-    <nav className="flex justify-center items-center gap-4 mt-2">
+    <nav className="flex justify-center items-center gap-2 sm:gap-4 mt-4">
       <NavLink
         to="/"
-        // This className function makes NavLink work
+        // This function checks if the link is active
         className={({ isActive }) =>
           `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
         }
@@ -41,10 +40,10 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
         Zip Folder
       </NavLink>
 
-      {/* --- 4. Added the theme toggle button --- */}
+      {/* --- Theme Toggle Button --- */}
       <button
         onClick={toggleTheme}
-        className="ml-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
+        className="ml-4 p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
         aria-label="Toggle theme"
       >
         {currentTheme === "light" ? (
