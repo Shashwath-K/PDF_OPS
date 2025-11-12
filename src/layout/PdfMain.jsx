@@ -8,24 +8,22 @@ import PdfCompress from "../pages/PdfCompress";
 import ZipFolder from "../pages/ZipFolder";
 
 /**
- * Reusable wrapper component to apply uniform
- * animations to every page.
+ * A reusable wrapper component to apply a uniform
+ * fade-in/fade-out animation to every page as it changes.
  */
 const PageWrapper = ({ children }) => (
   <motion.div
-    // Use the slide-up animation from your tailwind.config.js
-    // We can also define it inline for more control
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.3, ease: "easeInOut" }}
+    initial={{ opacity: 0, y: 15 }}    // Start invisible and slightly down
+    animate={{ opacity: 1, y: 0 }}    // Fade in to full opacity at final position
+    exit={{ opacity: 0, y: -15 }}     // Fade out and move slightly up
+    transition={{ duration: 0.25, ease: "easeInOut" }}
   >
     {children}
   </motion.div>
 );
 
 /**
- * This component now controls all routing and page transitions.
+ * This component controls all routing and page transitions.
  * 'AnimatePresence' handles the enter/exit animations.
  * 'mode="wait"' ensures the old page animates out before the new one animates in.
  */
@@ -66,8 +64,6 @@ const PdfMain = () => {
             </PageWrapper>
           }
         />
-        {/* You can add a 404 route here later if you want */}
-        {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     </AnimatePresence>
   );

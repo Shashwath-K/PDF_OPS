@@ -1,11 +1,14 @@
 /* =================================================================== */
 /* APP.CSS - PDF-OPS (v2.0 - Complex & Responsive)
+/*
+/* This is a complete, production-ready stylesheet.
+/* It uses CSS variables for theming and a flexbox-based
+/* layout to ensure all content is properly centered.
 /* =================================================================== */
 
-/* ============================================= */
-/* 1. ROOT & THEME VARIABLES (Light/Dark Mode)   */
-/* ============================================= */
-
+/* ================================================== */
+/* 1. ROOT & THEME VARIABLES (Light/Dark Mode)        */
+/* ================================================== */
 :root {
   /* -- Font Family -- */
   --font-sans: "Montserrat", "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -21,7 +24,8 @@
   --color-text-muted: #6b7280;   /* gray-500 */
   
   --color-bg-body: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
-  --color-bg-card: rgba(255, 255, 255, 0.85);
+  --color-bg-page: transparent;
+  --color-bg-card: rgba(255, 255, 255, 0.9);
   --color-bg-input: #ffffff;
   --color-bg-hover: #f3f4f6;     /* gray-100 */
 
@@ -52,7 +56,8 @@ html.dark {
   --color-text-muted: #9ca3af;    /* gray-400 */
   
   --color-bg-body: #0b1120; /* Dark navy */
-  --color-bg-card: rgba(30, 41, 59, 0.7); /* gray-800 with opacity */
+  --color-bg-page: #0b1120;
+  --color-bg-card: rgba(30, 41, 59, 0.85); /* gray-800 with opacity */
   --color-bg-input: #374151;     /* gray-700 */
   --color-bg-hover: #4b5563;     /* gray-600 */
 
@@ -80,36 +85,39 @@ html.dark {
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
-
 @keyframes spin {
   100% { transform: rotate(360deg); }
 }
-
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translate3d(0, 40px, 0); }
+  from { opacity: 0; transform: translate3d(0, 30px, 0) scale(0.98); }
   to { opacity: 1; transform: none; }
 }
-
 @keyframes slideInLeft {
   from { opacity: 0; transform: translate3d(-50px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
-
 @keyframes slideInRight {
   from { opacity: 0; transform: translate3d(50px, 0, 0); }
   to { opacity: 1; transform: none; }
 }
-
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
-
 @keyframes pulsing-glow {
   0% { box-shadow: 0 0 5px var(--color-primary-main), 0 0 10px var(--color-primary-main); }
   50% { box-shadow: 0 0 20px var(--color-primary-main), 0 0 30px var(--color-primary-main); }
   100% { box-shadow: 0 0 5px var(--color-primary-main), 0 0 10px var(--color-primary-main); }
 }
+@keyframes modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modal-zoom-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 
 /* ============================================= */
 /* 3. RESET & GLOBALS                            */
@@ -139,17 +147,17 @@ body {
   background-size: 400% 400%;
   color: var(--color-text-body);
   min-height: 100vh;
-  display: flex;
+  display: flex; /* This is key for the sticky footer */
   flex-direction: column;
   animation: gradient-pan 20s ease infinite;
 }
-
 html.dark body {
   animation: none; /* Disable gradient pan in dark mode */
+  background: var(--color-bg-page);
 }
 
 #root {
-  height: 100vh;
+  min-height: 100vh; /* Changed from height to min-height */
   display: flex;
   flex-direction: column;
 }
@@ -167,6 +175,12 @@ textarea {
   transition: all 0.2s ease;
   color: var(--color-text-main);
 }
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary-main);
+}
 
 a {
   text-decoration: none;
@@ -183,6 +197,10 @@ a:focus-visible {
 ul, ol {
   padding-left: 1.5rem;
   margin: 1rem 0;
+}
+img, svg, video {
+  max-width: 100%;
+  height: auto;
 }
 
 /* ================================================== */
@@ -211,6 +229,9 @@ p {
   margin-bottom: 1.25rem;
   max-width: 70ch; /* Optimal line length */
 }
+p:last-child {
+  margin-bottom: 0;
+}
 
 small, .text-sm {
   font-size: 0.875rem;
@@ -229,7 +250,7 @@ code {
 }
 
 /* ================================================== */
-/* 5. LAYOUT & CONTAINERS (Complex)                   */
+/* 5. LAYOUT & APP STRUCTURE (THE CENTERING FIX)      */
 /* ================================================== */
 .container {
   width: 100%;
@@ -243,7 +264,7 @@ code {
 /* Full-width header (frosted) */
 .app-header {
   width: 100%;
-  padding: 1rem 0;
+  padding: 0.75rem 0; /* Reduced padding */
   position: sticky;
   top: 0;
   z-index: 50;
@@ -258,30 +279,20 @@ html.dark .app-header {
   background-color: rgba(15, 23, 42, 0.7); /* Dark mode glass (slate-900) */
 }
 
-/* Full-width footer */
-.app-footer {
-  width: 100%;
-  padding: 2rem 0;
-  font-size: 0.875rem;
-  text-align: center;
-  color: var(--color-text-muted);
-  border-top: 1px solid var(--color-border);
-  margin-top: auto;
-  background-color: var(--color-bg-card);
-  box-shadow: var(--shadow-sm);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
-}
-
-.main-content {
-  flex-grow: 1;
-  display: flex;
+/* --- THIS IS THE CENTERING FIX --- */
+/* This .app-main class wraps the <main> element */
+.app-main {
+  flex-grow: 1; /* Pushes footer down */
+  display: flex; /* Enables vertical centering */
   flex-direction: column;
   width: 100%;
+  padding: 2rem 1.5rem; /* Spacing for the card */
 }
 
 /* Main animated content card */
 .content-card {
   width: 100%;
+  max-width: 56rem; /* 896px */
   padding: 2rem;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
@@ -289,204 +300,40 @@ html.dark .app-header {
   box-shadow: var(--shadow-xl);
   animation: fadeInUp 0.8s ease forwards;
   transition: background-color 0.3s ease, border-color 0.3s ease;
+  
+  /* This centers the card perfectly */
+  margin: auto; 
 }
 @media (max-width: 640px) {
+  .app-main { padding: 1rem; }
   .content-card { padding: 1.5rem; }
 }
+/* ---------------------------------- */
 
-/* Glassmorphism Card Variant */
-.card-glass {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  transition: all 0.3s ease;
-}
-.card-glass:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.2);
-}
-html.dark .card-glass {
-  background: rgba(30, 41, 59, 0.5); /* gray-800 50% */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ================================================== */
-/* 6. BUTTONS (Complex & Animated)                    */
-/* ================================================== */
-.btn {
-  cursor: pointer;
-  user-select: none;
-  border-radius: 0.75rem;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  box-shadow: var(--shadow-md);
-  transition: all 0.3s ease;
-  background-color: var(--color-primary-main);
-  color: #fff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  letter-spacing: 0.02em;
-  border: 2px solid transparent;
-  transform: translateY(0);
-}
-.btn:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-3px);
-}
-.btn:focus-visible {
-  outline: 3px solid var(--color-primary-main);
-  outline-offset: 3px;
-}
-.btn:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn:disabled,
-.btn[disabled] {
-  cursor: not-allowed;
-  opacity: 0.6;
-  background-color: var(--color-text-muted);
-  box-shadow: none;
-}
-
-/* Button Variants */
-.btn-secondary { background-color: var(--color-text-body); }
-.btn-secondary:hover:not(:disabled) { background-color: var(--color-text-main); }
-
-.btn-success { background-color: var(--color-success); }
-.btn-success:hover:not(:disabled) { background-color: #15803d; }
-html.dark .btn-success:hover:not(:disabled) { background-color: #16a34a; }
-
-.btn-danger { background-color: var(--color-danger); }
-.btn-danger:hover:not(:disabled) { background-color: #991b1b; }
-html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
-
-/* Animated Button */
-.btn-pulse-glow {
-  animation: pulsing-glow 2s infinite;
-}
-
-/* Button Sizes */
-.btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
-.btn-lg { padding: 1rem 2rem; font-size: 1.125rem; }
-
-/* Icon inside button */
-.btn > svg {
-  margin-left: 0.5rem;
-  fill: currentColor;
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-/* ================================================== */
-/* 7. FORMS & INPUTS (Dark Mode Ready)               */
-/* ================================================== */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-.form-label {
-  display: block;
-  font-weight: 600;
-  color: var(--color-text-main);
-  margin-bottom: 0.5rem;
-}
-.form-input {
-  display: block;
+/* Full-width footer */
+.app-footer {
   width: 100%;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--color-border);
-  background: var(--color-bg-input);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-.form-input:focus,
-.form-input:focus-visible {
-  border-color: var(--color-border-focus);
-  box-shadow: var(--shadow-focus);
-  outline: none;
-}
-.form-input::placeholder {
-  color: var(--color-text-muted);
-  font-style: italic;
-}
-
-/* Complex File Dropzone */
-.file-dropzone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 2.5rem;
-  border: 3px dashed var(--color-border);
-  border-radius: 1rem;
-  background-color: var(--color-bg-hover);
-  cursor: pointer;
-  transition: all 0.3s ease;
+  padding: 2rem 0;
   text-align: center;
+  margin-top: auto; /* This is part of the sticky footer */
+  background-color: var(--color-bg-card);
+  border-top: 1px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
-.file-dropzone-prompt {
-  color: var(--color-text-main);
-  font-weight: 600;
-  font-size: 1.125rem;
-}
-.file-dropzone-text {
-  color: var(--color-text-muted);
+.footer-text {
   font-size: 0.875rem;
-  margin-top: 0.25rem;
+  color: var(--color-text-muted);
+  margin: 0.25rem 0;
+  line-height: 1.6;
 }
-.file-dropzone svg {
-  width: 3rem;
-  height: 3rem;
+.footer-brand {
+  font-weight: 700;
   color: var(--color-primary-main);
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-}
-
-/* Dropzone Hover/Drag States */
-.file-dropzone:hover {
-  border-color: var(--color-primary-main);
-  background-color: var(--color-bg-card);
-}
-.file-dropzone:hover svg {
-  transform: scale(1.1) translateY(-5px);
-}
-.file-dropzone.dragging {
-  border-color: var(--color-primary-main);
-  border-style: solid;
-  background-color: var(--color-bg-card);
-  box-shadow: var(--shadow-focus);
-}
-.file-dropzone.dragging .file-dropzone-prompt {
-  color: var(--color-primary-dark);
-}
-
-.file-list {
-  margin-top: 1.5rem;
-  list-style: none;
-  padding: 0;
-}
-.file-list-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background-color: var(--color-bg-hover);
-  border: 1px solid var(--color-border);
-  border-radius: 0.5rem;
-  margin-bottom: 0.5rem;
-  box-shadow: var(--shadow-xs);
 }
 
 /* ================================================== */
-/* 8. NAVIGATION (Responsive Hamburger)              */
+/* 6. NAVIGATION (Responsive Hamburger)              */
 /* ================================================== */
 .nav-header {
   display: flex;
@@ -499,12 +346,13 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
   font-weight: 800;
   color: var(--color-text-main);
   text-decoration: none;
+  padding: 0.25rem 0;
 }
 .nav-logo:hover {
   text-decoration: none;
+  color: var(--color-primary-main);
 }
 
-/* Hamburger Toggle - Mobile Only */
 .nav-toggle {
   display: none;
   cursor: pointer;
@@ -522,17 +370,9 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
   border-radius: 2px;
   transition: all 0.3s ease-in-out;
 }
-
-/* Hamburger animation */
-.nav-toggle.open .bar-1 {
-  transform: rotate(45deg) translate(5px, 6px);
-}
-.nav-toggle.open .bar-2 {
-  opacity: 0;
-}
-.nav-toggle.open .bar-3 {
-  transform: rotate(-45deg) translate(5px, -6px);
-}
+.nav-toggle.open .bar-1 { transform: rotate(45deg) translate(5px, 6px); }
+.nav-toggle.open .bar-2 { opacity: 0; }
+.nav-toggle.open .bar-3 { transform: rotate(-45deg) translate(5px, -6px); }
 
 .nav-menu {
   display: flex;
@@ -571,16 +411,36 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
   font-weight: 700;
 }
 
-/* ================================================== */
-/* 9. RESPONSIVE (Mobile Nav)                         */
-/* ================================================== */
+.theme-toggle-btn {
+  background-color: transparent;
+  border: 2px solid var(--color-border);
+  color: var(--color-text-muted);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.theme-toggle-btn:hover,
+.theme-toggle-btn:focus-visible {
+  color: var(--color-text-main);
+  border-color: var(--color-primary-main);
+  background-color: var(--color-bg-hover);
+  outline: none;
+}
+.theme-toggle-btn .icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
 @media (max-width: 768px) {
-  .nav-toggle {
-    display: block;
-  }
+  .nav-toggle { display: block; }
   .nav-menu {
     position: fixed;
-    top: 60px; /* Height of header, adjust as needed */
+    top: 65px; /* Height of header */
     left: 0;
     right: 0;
     bottom: 0;
@@ -597,50 +457,286 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
     z-index: 1000;
     overflow-y: auto;
   }
-  .nav-menu.open {
-    transform: translateX(0);
-  }
-  .nav-menu-link {
-    font-size: 1.25rem;
-    width: 100%;
-    text-align: center;
-  }
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
+  .nav-menu.open { transform: translateX(0); }
+  .nav-menu-link { font-size: 1.25rem; width: 100%; text-align: center; }
+  .theme-toggle-btn { width: 50px; height: 50px; }
+  .theme-toggle-btn .icon { width: 1.5rem; height: 1.5rem; }
 }
 
 /* ================================================== */
-/* 10. LOADING OVERLAY & SPINNER                     */
+/* 7. BUTTONS                                         */
 /* ================================================== */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  z-index: 9999;
+.btn {
+  cursor: pointer;
+  user-select: none;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  background-color: var(--color-primary-main);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  border: 2px solid transparent;
+  transform: translateY(0);
+}
+.btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+.btn:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
+}
+.btn:disabled,
+.btn[disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: var(--color-text-muted);
+  box-shadow: none;
+}
+
+/* Button Variants */
+.btn-secondary { background-color: var(--color-text-body); }
+.btn-secondary:hover:not(:disabled) { background-color: var(--color-text-main); }
+.btn-success { background-color: var(--color-success); }
+.btn-success:hover:not(:disabled) { background-color: #15803d; }
+html.dark .btn-success:hover:not(:disabled) { background-color: #16a34a; }
+.btn-danger { background-color: var(--color-danger); }
+.btn-danger:hover:not(:disabled) { background-color: #991b1b; }
+html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
+
+/* Animated Button */
+.btn-pulse-glow { animation: pulsing-glow 2s infinite; }
+
+/* Button Sizes & Layout */
+.btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
+.btn-lg { padding: 1rem 2rem; font-size: 1.125rem; }
+.btn-full-width {
+  width: 100%;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  font-size: 1.125rem;
+}
+.btn > svg {
+  margin-left: 0.5rem;
+  fill: currentColor;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* ================================================== */
+/* 8. FORMS & INPUTS                                  */
+/* ================================================== */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--color-text-main);
+  margin-bottom: 0.5rem;
+}
+.form-input {
+  display: block;
+  width: 100%;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-input);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+}
+.form-input:focus,
+.form-input:focus-visible {
+  border-color: var(--color-border-focus);
+  box-shadow: var(--shadow-focus);
+  outline: none;
+}
+.form-input::placeholder {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* ================================================== */
+/* 9. FILE DROPZONE COMPONENT                         */
+/* ================================================== */
+.file-dropzone-input {
+  display: none;
+}
+.file-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 2rem;
+  border: 3px dashed var(--color-border);
+  border-radius: 1rem;
+  background-color: var(--color-bg-hover);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.file-dropzone-prompt {
+  color: var(--color-text-main);
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin: 0;
+}
+.file-dropzone-text {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+.file-dropzone-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  color: var(--color-primary-main);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Dropzone Hover/Drag States */
+.file-dropzone:hover {
+  border-color: var(--color-primary-main);
+  background-color: var(--color-bg-card);
+}
+.file-dropzone:hover .file-dropzone-icon {
+  transform: scale(1.1) translateY(-5px);
+}
+.file-dropzone.dragging {
+  border-color: var(--color-primary-main);
+  border-style: solid;
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-focus);
+}
+.file-dropzone.dragging .file-dropzone-prompt {
+  color: var(--color-primary-dark);
+}
+
+/* File List Styles */
+.file-list-container {
+  margin-top: 2rem;
+  width: 100%;
+}
+.file-list-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+.file-list-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin: 0;
+}
+.file-list-clear-btn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary-main);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+.file-list-clear-btn:hover {
+  text-decoration: underline;
+}
+
+.file-list {
+  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0.5rem; /* For scrollbar spacing */
+}
+.file-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+}
+.file-list-item:hover {
+  border-color: var(--color-primary-light);
+  background-color: var(--color-bg-card);
+}
+.file-list-item-details {
+  display: flex;
+  align-items: center;
+  min-width: 0; /* Important for truncation */
+}
+.file-list-item-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-primary-main);
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+.file-list-item-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-list-item-remove-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  border-radius: 50%;
+  padding: 0.25rem;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+.file-list-item-remove-btn .icon {
+  width: 1rem;
+  height: 1rem;
+}
+.file-list-item-remove-btn:hover {
+  color: var(--color-danger);
+  background-color: var(--color-bg-hover);
+}
+
+/* ================================================== */
+/* 10. PAGE-SPECIFIC LAYOUTS                          */
+/* ================================================== */
+.page-container {
+  display: flex;
   flex-direction: column;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s ease;
+  gap: 1.5rem; /* Space between header, dropzone, button */
 }
-.loading-overlay.active {
-  pointer-events: auto;
-  opacity: 1;
+.page-header {
+  text-align: center;
 }
-.spinner {
-  width: 3rem;
-  height: 3rem;
-  border: 5px solid var(--color-primary-main);
-  border-top: 5px solid transparent;
-  border-radius: 50%;
-  animation: spin 1.2s linear infinite;
+.page-header h2 {
+  margin-bottom: 0.5rem;
+}
+.page-header p {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0;
+}
+.page-action-button-wrapper {
+  margin-top: 1rem; /* Add extra space above the button */
 }
 
 /* ================================================== */
@@ -684,49 +780,166 @@ html.dark .alert-success {
 }
 
 /* ================================================== */
-/* 12. UTILITY & ANIMATION HELPER CLASSES             */
+/* 12. LOADERS, MODALS & TOOLTIPS (NEW)             */
+/* ================================================== */
+
+/* Loading Overlay & Spinner */
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: modal-fade-in 0.3s forwards;
+}
+.loading-overlay.active {
+  pointer-events: auto;
+  opacity: 1;
+}
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 5px solid var(--color-primary-main);
+  border-top: 5px solid transparent;
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+}
+
+/* Skeleton Loader */
+.skeleton-loader {
+  background-image: linear-gradient(90deg, 
+    var(--color-bg-hover) 0%, 
+    var(--color-bg-card) 50%, 
+    var(--color-bg-hover) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s linear infinite;
+  border-radius: 0.5rem;
+}
+.skeleton-loader.text {
+  height: 1em;
+  margin-bottom: 0.5em;
+}
+.skeleton-loader.title {
+  height: 1.5em;
+  margin-bottom: 0.75em;
+  width: 75%;
+}
+.skeleton-loader.card {
+  height: 200px;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: modal-fade-in 0.3s ease forwards;
+}
+.modal-content {
+  background-color: var(--color-bg-card);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-xl);
+  padding: 2rem;
+  width: 100%;
+  max-width: 32rem; /* 512px */
+  animation: modal-zoom-in 0.3s ease forwards;
+  position: relative;
+}
+.modal-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+}
+.modal-close-btn:hover {
+  color: var(--color-text-main);
+  background-color: var(--color-bg-hover);
+}
+.modal-header {
+  margin-bottom: 1rem;
+}
+.modal-header h3 {
+  margin: 0;
+}
+.modal-body {
+  margin-bottom: 1.5rem;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ================================================== */
+/* 13. UTILITY & ACCESSIBILITY CLASSES                */
 /* ================================================== */
 .text-center { text-align: center !important; }
 .text-left { text-align: left !important; }
 .text-right { text-align: right !important; }
 .text-primary { color: var(--color-primary-main) !important; }
 .text-muted { color: var(--color-text-muted) !important; }
+.text-danger { color: var(--color-danger) !important; }
+.text-success { color: var(--color-success) !Vimportant; }
 
 .w-full { width: 100% !important; }
 .min-h-screen { min-height: 100vh !important; }
 .hidden { display: none !important; }
 .cursor-pointer { cursor: pointer !important; }
 
-/* Animation Helpers */
-.animate-fade-in-up {
-  animation: fadeInUp 0.8s ease forwards;
-}
-.animate-slide-in-left {
-  animation: slideInLeft 0.8s ease-out forwards;
-}
-.animate-slide-in-right {
-  animation: slideInRight 0.8s ease-out forwards;
-}
-.animate-shimmer {
-  background-image: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.4) 50%, 
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s linear infinite;
-  background-color: var(--color-border);
-}
-html.dark .animate-shimmer {
-  background-image: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255, 255, 255, 0.1) 50%, 
-    transparent 100%
-  );
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
+/* Spacing Utilities */
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+
+.p-1 { padding: 0.25rem; }
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+
 /* ================================================== */
-/* 13. SCROLLBAR STYLING                              */
+/* 14. SCROLLBAR STYLING                              */
 /* ================================================== */
 ::-webkit-scrollbar {
   width: 10px;
@@ -744,219 +957,7 @@ html.dark .animate-shimmer {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-primary-dark);
 }
-.theme-toggle-btn {
-  background-color: transparent;
-  border: 2px solid var(--color-border);
-  color: var(--color-text-muted);
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
 
-.theme-toggle-btn:hover,
-.theme-toggle-btn:focus-visible {
-  color: var(--color-text-main);
-  border-color: var(--color-primary-main);
-  background-color: var(--color-bg-hover);
-  outline: none;
-}
-
-.theme-toggle-btn .icon {
-  width: 1.25rem; /* 20px */
-  height: 1.25rem; /* 20px */
-}
-
-/* Make toggle fit in mobile menu */
-@media (max-width: 768px) {
-  .theme-toggle-btn {
-    width: 50px;
-    height: 50px;
-  }
-  .theme-toggle-btn .icon {
-    width: 1.5rem; /* 24px */
-    height: 1.5rem; /* 24px */
-  }
-}
-.footer-text {
-  /* Inherits color and font-size from .app-footer */
-  margin: 0.25rem 0; /* 4px top/bottom margin */
-  line-height: 1.6;
-}
-
-.footer-brand {
-  /* This makes the "PDF-OPS" text stand out */
-  font-weight: 700;
-  color: var(--color-primary-main);
-}
-/* ================================================== */
-/* 7. FORMS & INPUTS (Dark Mode Ready)               */
-/* ================================================== */
-/* ... (Keep your .form-group, .form-label, etc.) ... */
-
-.file-dropzone-input {
-  display: none;
-}
-
-/* Complex File Dropzone */
-.file-dropzone {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  padding: 2rem; /* Made smaller */
-  border: 3px dashed var(--color-border);
-  border-radius: 1rem;
-  background-color: var(--color-bg-hover);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-}
-.file-dropzone-prompt {
-  color: var(--color-text-main);
-  font-weight: 600;
-  font-size: 1.125rem;
-  margin: 0;
-}
-.file-dropzone-text {
-  color: var(--color-text-muted);
-  font-size: 0.875rem;
-  margin: 0.25rem 0 0 0;
-}
-.file-dropzone-icon {
-  width: 2.5rem; /* Made smaller (was 3rem) */
-  height: 2.5rem; /* Made smaller (was 3rem) */
-  color: var(--color-primary-main);
-  margin-bottom: 1rem;
-  transition: all 0.3s ease;
-}
-
-/* Dropzone Hover/Drag States */
-.file-dropzone:hover {
-  border-color: var(--color-primary-main);
-  background-color: var(--color-bg-card);
-}
-.file-dropzone:hover .file-dropzone-icon {
-  transform: scale(1.1) translateY(-5px);
-}
-.file-dropzone.dragging {
-  border-color: var(--color-primary-main);
-  border-style: solid;
-  background-color: var(--color-bg-card);
-  box-shadow: var(--shadow-focus);
-}
-.file-dropzone.dragging .file-dropzone-prompt {
-  color: var(--color-primary-dark);
-}
-
-/* File List Styles */
-.file-list-container {
-  margin-top: 2rem;
-  width: 100%;
-}
-
-.file-list-header-wrapper {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-
-.file-list-header {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: var(--color-text-main);
-  margin: 0;
-}
-
-.file-list-clear-btn {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-primary-main);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-}
-.file-list-clear-btn:hover {
-  text-decoration: underline;
-}
-
-.file-list {
-  margin-top: 1rem;
-  list-style: none;
-  padding: 0;
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 0.5rem; /* For scrollbar spacing */
-}
-
-.file-list-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  background-color: var(--color-bg-hover);
-  border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
-  margin-bottom: 0.5rem;
-  box-shadow: var(--shadow-xs);
-  transition: all 0.2s ease;
-}
-.file-list-item:hover {
-  border-color: var(--color-primary-light);
-  background-color: var(--color-bg-card);
-}
-
-.file-list-item-details {
-  display: flex;
-  align-items: center;
-  min-width: 0; /* Important for truncation */
-}
-
-.file-list-item-icon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: var(--color-primary-main);
-  flex-shrink: 0;
-  margin-right: 0.75rem;
-}
-
-.file-list-item-name {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--color-text-body);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.file-list-item-remove-btn {
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  border-radius: 50%;
-  padding: 0.25rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  margin-left: 0.5rem;
-}
-.file-list-item-remove-btn .icon {
-  width: 1rem;
-  height: 1rem;
-}
-.file-list-item-remove-btn:hover {
-  color: var(--color-danger);
-  background-color: var(--color-bg-hover);
-}
 /* ================================================== */
 /* END OF APP.CSS                                     */
 /* ================================================== */

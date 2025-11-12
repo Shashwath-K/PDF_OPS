@@ -45,28 +45,23 @@ const useTheme = () => {
 const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
   return (
     <>
-      {/* --- This uses your component and passes the ref --- */}
       <ScrollToTop scrollRef={mainRef} />
-
-      {/* --- 3. Added dark: variants --- */}
+      
       <header className="app-header">
         <Navigation toggleTheme={toggleTheme} currentTheme={currentTheme} />
       </header>
-      <main
-        ref={mainRef} // The ref is created here
-          className="layout-container flex-1 pb-16 overflow-y-auto"
-      >
-        <motion.section
-          initial={{ opacity: 0, y: 32 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", delay: 0.15 }}
-          // --- 3. Added dark: variants to the main content card ---
-          className="bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-2xl shadow-lg p-6 mt-4"
-        >
+
+      {/* --- THIS IS THE FIX --- */}
+      {/* 1. Use .app-main to control layout and centering */}
+      <main ref={mainRef} className="app-main">
+        {/* 2. .content-card is now centered by .app-main */}
+        <section className="content-card">
           <PdfMain />
-        </motion.section>
+        </section>
       </main>
-      <Footer />
+      
+      {/* 3. The footer class remains .app-footer, so no change needed */}
+      <Footer /> 
     </>
   );
 };

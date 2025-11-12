@@ -1,5 +1,3 @@
-// src/pages/PdfCombine.jsx
-
 import React, { useState } from "react";
 import FileDropzone from "../components/FileDropzone";
 
@@ -12,17 +10,17 @@ const PdfCombine = () => {
     alert(`Combining ${files.length} files! (See console)`);
   };
 
+  const canCombine = files.length > 1;
+
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Combine PDFs
-        </h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          Merge multiple PDF files into a single document.
-        </p>
+    <div className="page-container">
+      {/* Page Header */}
+      <div className="page-header">
+        <h2>Combine PDFs</h2>
+        <p>Merge multiple PDF files into a single document.</p>
       </div>
 
+      {/* File Dropzone */}
       <FileDropzone
         onFilesChange={setFiles}
         inputProps={{
@@ -32,20 +30,19 @@ const PdfCombine = () => {
         prompt="Drag & drop PDFs here, or click to select"
       />
 
+      {/* Action Button */}
       {files.length > 0 && (
-        <button
-          onClick={handleCombine}
-          disabled={files.length < 2}
-          className="w-full py-3 px-4 font-semibold text-white bg-primary-600 rounded-lg shadow transition-all
-                     hover:bg-primary-700 
-                     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
-                     dark:bg-primary-500 dark:hover:bg-primary-600
-                     disabled:bg-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-600"
-        >
-          {files.length < 2
-            ? "Please select at least 2 files"
-            : `Combine ${files.length} Files`}
-        </button>
+        <div className="page-action-button-wrapper">
+          <button
+            onClick={handleCombine}
+            className="btn btn-primary btn-full-width"
+            disabled={!canCombine}
+          >
+            {canCombine
+              ? `Combine ${files.length} Files`
+              : "Please select at least 2 files"}
+          </button>
+        </div>
       )}
     </div>
   );
