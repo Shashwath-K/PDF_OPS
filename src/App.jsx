@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 import { motion } from "framer-motion";
 
 // --- 1. Updated Imports (based on new structure) ---
-import PdfMain from "./layout/PdfMain"; // Moved to layouts/
-import PdfCombine from "./pages/PdfCombine"; // Moved to pages/
-import PdfCompress from "./pages/PdfCompress"; // Moved to pages/
-import ZipFolder from "./pages/ZipFolder"; // Moved to pages/
+import PdfMain from "./layout/PdfMain"; 
+import PdfCombine from "./pages/PdfCombine"; 
+import PdfCompress from "./pages/PdfCompress"; 
+import ZipFolder from "./pages/ZipFolder"; 
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import WelcomeLoader from "./components/WelcomeLoader";
-import ScrollToTop from "./components/ScrollToTop"; // Extracted
+import ScrollToTop from "./components/ScrollToTop"; 
 
 // --- 2. Theme Hook (for consistent light/dark mode) ---
 // This hook manages the theme state and persists it to localStorage.
