@@ -1,66 +1,71 @@
 import React, { useState, useEffect, useRef, useLayoutEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import PdfMain from "./PdfMain";
-import PdfCombine from "./PdfCombine";
-import PdfCompress from "./PdfCompress";
-import ZipFolder from "./ZipFolder";
+
+// --- 1. Updated Imports (based on new structure) ---
+import PdfMain from "./layout/PdfMain"; // Moved to layouts/
+import PdfCombine from "./pages/PdfCombine"; // Moved to pages/
+import PdfCompress from "./pages/PdfCompress"; // Moved to pages/
+import ZipFolder from "./pages/ZipFolder"; // Moved to pages/
 import Navigation from "./components/Navigation";
 import Footer from "./components/Footer";
 import WelcomeLoader from "./components/WelcomeLoader";
+import ScrollToTop from "./components/ScrollToTop"; // Extracted
 
-function ScrollToTop({ scrollRef }) {
-  const { pathname } = useLocation();
+// --- 2. Theme Hook (for consistent light/dark mode) ---
+// This hook manages the theme state and persists it to localStorage.
+const useTheme = () => {
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    // Check for saved theme or system preference
+    return savedTheme
+      ? savedTheme
+      : window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  });
 
-  useLayoutEffect(() => {
-    if ("scrollRestoration" in window.history) {
-      try {
-        window.history.scrollRestoration = "manual";
-      } catch {}
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === "dark") {
+      root.classList.add("dark");
+    } else {
+      root.classList.remove("dark");
     }
-    requestAnimationFrame(() => {
-      const container =
-        (scrollRef && scrollRef.current) ||
-        document.scrollingElement ||
-        document.documentElement ||
-        document.body;
-      try {
-        if (container && typeof container.scrollTo === "function") {
-          container.scrollTo({ top: 0, left: 0, behavior: "auto" });
-        } else if (container) {
-          container.scrollTop = 0;
-        } else {
-          window.scrollTo(0, 0);
-        }
-      } catch {
-        window.scrollTo(0, 0);
-      }
-    });
-  }, [pathname, scrollRef]);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
-  return null;
-}
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
 
-const AppContent = ({ mainRef }) => {
+  return [theme, toggleTheme];
+};
+
+
+const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
   return (
     <>
       <ScrollToTop scrollRef={mainRef} />
-      <header className="w-full bg-white bg-opacity-90 shadow-md py-6 mb-6 sticky top-0 z-50">
-        <h1 className="text-4xl font-extrabold text-center text-blue-700 tracking-tight drop-shadow-xl">
-          PDF Toolkit
+      {/* --- 3. Added dark: variants --- */}
+      <header className="w-full bg-white bg-opacity-90 dark:bg-gray-900 dark:bg-opacity-90 shadow-md py-6 mb-6 sticky top-0 z-50 backdrop-blur-sm">
+        <h1 className="text-4xl font-extrabold text-center text-blue-700 dark:text-blue-400 tracking-tight drop-shadow-xl">
+          PDF-OPS
         </h1>
-        <Navigation />
+        {/* Pass the toggle function to Navigation so you can add a button */}
+        <Navigation toggleTheme={toggleTheme} currentTheme={currentTheme} />
       </header>
       <main
         ref={mainRef}
         className="flex-1 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 overflow-y-auto"
-        style={{ height: "calc(100vh - 6rem)", WebkitOverflowScrolling: "touch" }}
+        // Note: The main "page" color is set by the body, this main tag is transparent
       >
         <motion.section
           initial={{ opacity: 0, y: 32 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ type: "spring", delay: 0.15 }}
-          className="bg-white border border-blue-100 rounded-2xl shadow-lg p-6 mt-4"
+          // --- 3. Added dark: variants to the main content card ---
+          className="bg-white dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-2xl shadow-lg p-6 mt-4"
         >
           <Routes>
             <Route
@@ -85,11 +90,12 @@ const AppContent = ({ mainRef }) => {
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [theme, toggleTheme] = useTheme(); // Use the theme hook
   const mainRef = useRef(null);
 
   useEffect(() => {
-    document.body.classList.add("dark");
-    document.body.classList.remove("light");
+    // We don't need to manually set body classes here anymore,
+    // the useTheme hook handles it.
     if ("scrollRestoration" in window.history) {
       try {
         window.history.scrollRestoration = "manual";
@@ -105,7 +111,11 @@ const App = () => {
         <WelcomeLoader onAnimationComplete={handleLoadingComplete} />
       ) : (
         <Router>
-          <AppContent mainRef={mainRef} />
+          <AppContent
+            mainRef={mainRef}
+            toggleTheme={toggleTheme}
+            currentTheme={theme}
+          />
         </Router>
       )}
     </>
