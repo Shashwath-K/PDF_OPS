@@ -2,20 +2,25 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="w-full py-8 mt-16 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-      {/* Use .layout-container to perfectly align the footer content 
-        with the main content's horizontal padding.
-      */}
-      <div className="layout-container text-center text-sm text-gray-500 dark:text-gray-400">
-        <p>
+    // 1. Use the .app-footer class
+    <footer className="app-footer">
+      
+      {/* 2. Use the .container class to center the content */}
+      <div className="container">
+        
+        {/* 3. Use new semantic classes for the text */}
+        <p className="footer-text">
           &copy; {new Date().getFullYear()}{" "}
-          <span className="font-semibold text-primary-700 dark:text-primary-400">
+          
+          {/* 4. Use a specific class for the brand name */}
+          <span className="footer-brand">
             PDF-OPS
           </span>
           . All rights reserved.
         </p>
-        <p className="mt-2">
-          A utility tool built with React, Tailwind CSS, and Framer Motion.
+        
+        <p className="footer-text">
+          A utility tool built with React, CSS, and Framer Motion.
         </p>
       </div>
     </footer>

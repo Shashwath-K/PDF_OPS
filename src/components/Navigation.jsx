@@ -1,58 +1,94 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 
 // Accept the props from App.jsx
 const Navigation = ({ toggleTheme, currentTheme }) => {
-  // Define classes for NavLink to keep the return statement clean
-  const commonLinkClass =
-    "font-medium rounded-lg px-3 py-2 transition-colors duration-200";
-  const activeLinkClass =
-    "bg-primary-100 text-primary-700 dark:bg-primary-800 dark:text-primary-100";
-  const inactiveLinkClass =
-    "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700";
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Helper to close the menu when a link is clicked (good for mobile)
+  const handleLinkClick = () => {
+    setIsMenuOpen(false);
+  };
 
   return (
-    <nav className="flex justify-center items-center gap-2 sm:gap-4 mt-4">
-      <NavLink
-        to="/"
-        // This function checks if the link is active
-        className={({ isActive }) =>
-          `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
-        }
-      >
-        Combine
-      </NavLink>
-      <NavLink
-        to="/compress"
-        className={({ isActive }) =>
-          `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
-        }
-      >
-        Compress
-      </NavLink>
-      <NavLink
-        to="/zip"
-        className={({ isActive }) =>
-          `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
-        }
-      >
-        Zip Folder
-      </NavLink>
+    // The .container class centers our nav content
+    <div className="container">
+      {/* .nav-header contains the logo and the mobile toggle */}
+      <div className="nav-header">
+        <NavLink 
+          to="/" 
+          className="nav-logo" 
+          onClick={handleLinkClick}
+        >
+          PDF-OPS
+        </NavLink>
 
-      {/* --- Theme Toggle Button --- */}
-      <button
-        onClick={toggleTheme}
-        className="ml-4 p-2 rounded-full text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-        aria-label="Toggle theme"
-      >
-        {currentTheme === "light" ? (
-          <MoonIcon className="h-5 w-5" />
-        ) : (
-          <SunIcon className="h-5 w-5" />
-        )}
-      </button>
-    </nav>
+        {/* Hamburger Toggle Button */}
+        <button
+          className={`nav-toggle ${isMenuOpen ? "open" : ""}`}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          aria-label="Toggle navigation"
+          aria-expanded={isMenuOpen}
+        >
+          <span className="nav-toggle-bar bar-1"></span>
+          <span className="nav-toggle-bar bar-2"></span>
+          <span className="nav-toggle-bar bar-3"></span>
+        </button>
+      </div>
+
+      {/* Navigation Menu (Links + Theme Toggle) */}
+      <ul className={`nav-menu ${isMenuOpen ? "open" : ""}`}>
+        <li className="nav-menu-item">
+          <NavLink
+            to="/"
+            className={({ isActive }) =>
+              `nav-menu-link ${isActive ? "active" : ""}`
+            }
+            onClick={handleLinkClick}
+          >
+            Combine
+          </NavLink>
+        </li>
+        <li className="nav-menu-item">
+          <NavLink
+            to="/compress"
+            className={({ isActive }) =>
+              `nav-menu-link ${isActive ? "active" : ""}`
+            }
+            onClick={handleLinkClick}
+          >
+            Compress
+          </NavLink>
+        </li>
+        <li className="nav-menu-item">
+          <NavLink
+            to="/zip"
+            className={({ isActive }) =>
+              `nav-menu-link ${isActive ? "active" : ""}`
+            }
+            onClick={handleLinkClick}
+          >
+            Zip Folder
+          </NavLink>
+        </li>
+
+        {/* --- Theme Toggle Button (Now styled with CSS) --- */}
+        <li className="nav-menu-item">
+          <button
+            onClick={toggleTheme}
+            className="theme-toggle-btn"
+            aria-label="Toggle theme"
+          >
+            {currentTheme === "light" ? (
+              <MoonIcon className="icon" />
+            ) : (
+              <SunIcon className="icon" />
+            )}
+          </button>
+        </li>
+      </ul>
+    </div>
   );
 };
 

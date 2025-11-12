@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { motion } from "framer-motion";
-
+import "./App.css";
 // --- 1. Updated Imports (based on new structure) ---
 import PdfMain from "./layout/PdfMain";
 import PdfCombine from "./pages/PdfCombine"; 
@@ -49,11 +49,7 @@ const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
       <ScrollToTop scrollRef={mainRef} />
 
       {/* --- 3. Added dark: variants --- */}
-      <header className="w-full bg-white bg-opacity-90 dark:bg-gray-900 dark:bg-opacity-90 shadow-md py-6 mb-6 sticky top-0 z-50 backdrop-blur-sm">
-        <h1 className="text-4xl font-extrabold text-center text-blue-700 dark:text-blue-400 tracking-tight drop-shadow-xl">
-          PDF-OPS
-        </h1>
-        {/* Pass the toggle function to Navigation so you can add a button */}
+      <header className="app-header">
         <Navigation toggleTheme={toggleTheme} currentTheme={currentTheme} />
       </header>
       <main
