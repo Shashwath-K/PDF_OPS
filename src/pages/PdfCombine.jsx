@@ -1,110 +1,54 @@
-// src/PdfCombine.jsx
+// src/pages/PdfCombine.jsx
+
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import FileDropzone from "../components/FileDropzone";
 
-function PdfCombine({
-  libsLoaded,
-  pdfLib,
-  pakoLib,
-  triggerDownload,
-  setMessage,
-  setIsLoading,
-  isLoading,
-}) {
-  const [filesToCombine, setFilesToCombine] = useState([]);
+const PdfCombine = () => {
+  const [files, setFiles] = useState([]);
 
-  const handleCombineFiles = (e) => {
-    if (e.target.files) {
-      const selectedFiles = Array.from(e.target.files);
-      setFilesToCombine(selectedFiles);
-      setMessage(`${selectedFiles.length} files selected for combining.`);
-    }
+  const handleCombine = () => {
+    // TODO: Add your PDF-lib merging logic here
+    console.log("Combining files:", files.map(f => f.name));
+    alert(`Combining ${files.length} files! (See console)`);
   };
-
-  const combinePdfs = async () => {
-    if (filesToCombine.length < 2) {
-      setMessage("Please select at least two PDF files to combine.");
-      return;
-    }
-    if (!libsLoaded) {
-      setMessage("Libraries are not loaded yet. Please wait.");
-      return;
-    }
-
-    setIsLoading(true);
-    setMessage("Combining PDFs... This may take a moment.");
-
-    try {
-      const mergedPdf = await pdfLib.PDFDocument.create();
-
-      const pakoOptions = {
-        pako: {
-          inflate: pakoLib.inflate,
-          deflate: pakoLib.deflate,
-        },
-      };
-
-      for (const file of filesToCombine) {
-        const fileBytes = await file.arrayBuffer();
-        const pdf = await pdfLib.PDFDocument.load(fileBytes, {
-          ...pakoOptions,
-          ignoreEncryption: true,
-        });
-
-        const pages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-        pages.forEach((page) => mergedPdf.addPage(page));
-      }
-
-      const mergedPdfBytes = await mergedPdf.save(pakoOptions);
-      triggerDownload(mergedPdfBytes, "combined.pdf", "application/pdf");
-      setFilesToCombine([]);
-      setMessage("PDFs combined successfully!");
-    } catch (error) {
-      console.error("Error combining PDFs:", error);
-      setMessage(`Error: ${error.message}. One of the PDFs might be corrupt or encrypted.`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const isDisabled = isLoading || !libsLoaded || filesToCombine.length < 2;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 20 }}
-      transition={{ duration: 0.4 }}
-      className="max-w-xl mx-auto"
-    >
-      <h2 className="text-2xl font-bold mb-6 text-center text-blue-800">Combine Multiple PDFs</h2>
-      <p className="mb-6 text-gray-600 text-center">
-        Select two or more PDF files. They will be merged in the order you selected them.
-      </p>
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          Combine PDFs
+        </h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          Merge multiple PDF files into a single document.
+        </p>
+      </div>
 
-      <input
-        type="file"
-        multiple
-        accept="application/pdf"
-        onChange={handleCombineFiles}
-        disabled={isDisabled}
-        className="block w-full mb-6 px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer text-gray-900 bg-gray-50"
+      <FileDropzone
+        onFilesChange={setFiles}
+        inputProps={{
+          accept: "application/pdf",
+          multiple: true,
+        }}
+        prompt="Drag & drop PDFs here, or click to select"
       />
 
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        disabled={isDisabled}
-        onClick={combinePdfs}
-        className={`w-full sm:w-auto px-6 py-3 rounded-lg font-semibold text-white shadow-md transition-colors ${
-          isDisabled
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-        }`}
-      >
-        Combine {filesToCombine.length > 0 ? `(${filesToCombine.length}) Files` : "PDFs"}
-      </motion.button>
-    </motion.div>
+      {files.length > 0 && (
+        <button
+          onClick={handleCombine}
+          disabled={files.length < 2}
+          className="w-full py-3 px-4 font-semibold text-white bg-primary-600 rounded-lg shadow transition-all
+                     hover:bg-primary-700 
+                     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
+                     dark:bg-primary-500 dark:hover:bg-primary-600
+                     disabled:bg-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-600"
+        >
+          {files.length < 2
+            ? "Please select at least 2 files"
+            : `Combine ${files.length} Files`}
+        </button>
+      )}
+    </div>
   );
-}
+};
 
 export default PdfCombine;
