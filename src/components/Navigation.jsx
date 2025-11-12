@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 
-// Accept the props from App.jsx
+// Accept the theme props from App.jsx
 const Navigation = ({ toggleTheme, currentTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Helper to close the menu when a link is clicked (good for mobile)
+  // Helper to close the mobile menu when a link is clicked
   const handleLinkClick = () => {
     setIsMenuOpen(false);
   };
@@ -24,7 +24,7 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
           PDF-OPS
         </NavLink>
 
-        {/* Hamburger Toggle Button */}
+        {/* Hamburger Toggle Button (Mobile Only) */}
         <button
           className={`nav-toggle ${isMenuOpen ? "open" : ""}`}
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -73,7 +73,7 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
           </NavLink>
         </li>
 
-        {/* --- Theme Toggle Button (Now styled with CSS) --- */}
+        {/* --- Theme Toggle Button --- */}
         <li className="nav-menu-item">
           <button
             onClick={toggleTheme}

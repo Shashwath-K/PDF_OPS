@@ -423,7 +423,9 @@ html.dark .app-header {
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-left: 0.5rem; /* Adds spacing on desktop */
 }
+
 .theme-toggle-btn:hover,
 .theme-toggle-btn:focus-visible {
   color: var(--color-text-main);
@@ -431,9 +433,23 @@ html.dark .app-header {
   background-color: var(--color-bg-hover);
   outline: none;
 }
+
 .theme-toggle-btn .icon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.25rem; /* 20px */
+  height: 1.25rem; /* 20px */
+}
+
+/* Make toggle fit in mobile menu */
+@media (max-width: 768px) {
+  .theme-toggle-btn {
+    width: 50px;
+    height: 50px;
+    margin-left: 0; /* No margin in mobile menu */
+  }
+  .theme-toggle-btn .icon {
+    width: 1.5rem; /* 24px */
+    height: 1.5rem; /* 24px */
+  }
 }
 
 @media (max-width: 768px) {
