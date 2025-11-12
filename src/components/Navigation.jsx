@@ -1,64 +1,60 @@
-// src/App.jsx
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { motion } from "framer-motion";
-import PdfMain from "../layout/PdfMain";
-import PdfCombine from "../pages/PdfCombine";
-import PdfCompress from "../pages/PdfCompress";
-import ZipFolder from "../pages/ZipFolder";
-import Navigation from "./Navigation";
-import Footer from "./Footer";
+// --- 1. Use NavLink, and DO NOT import BrowserRouter ---
+import { NavLink } from "react-router-dom";
+import { SunIcon, MoonIcon } from "@heroicons/react/24/solid"; // (Install @heroicons/react for this)
 
-function App() {
+// --- 2. Accept the theme props from App.jsx ---
+const Navigation = ({ toggleTheme, currentTheme }) => {
+  const commonLinkClass =
+    "font-medium rounded-md px-3 py-1 transition-all duration-150";
+  const activeLinkClass =
+    "bg-blue-100 text-blue-700 dark:bg-blue-800 dark:text-blue-100";
+  const inactiveLinkClass =
+    "text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700";
+
   return (
-    <Router>
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-100 via-blue-50 to-gray-100">
-        <motion.header
-          className="w-full bg-white bg-opacity-90 shadow-md py-6 mb-6"
-          initial={{ y: -80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 80, damping: 20 }}
-        >
-          <h1 className="text-4xl font-extrabold text-center text-blue-700 tracking-tight drop-shadow-xl">
-            PDF Toolkit
-          </h1>
-        </motion.header>
-        <main className="flex-1 w-full">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-10">
-            <Navigation />
-            <motion.section
-              initial={{ opacity: 0, y: 32 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ type: "spring", delay: 0.15 }}
-              className="bg-white border border-blue-100 rounded-2xl shadow-lg p-6 mt-4"
-            >
-              <Routes>
-                <Route
-                  path="/"
-                  element={
-                    <PdfMain activeComponent="combine" Component={PdfCombine} />
-                  }
-                />
-                <Route
-                  path="/compress"
-                  element={
-                    <PdfMain activeComponent="compress" Component={PdfCompress} />
-                  }
-                />
-                <Route
-                  path="/zip"
-                  element={
-                    <PdfMain activeComponent="zip" Component={ZipFolder} />
-                  }
-                />
-              </Routes>
-            </motion.section>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    </Router>
-  );
-}
+    // --- 3. NO <Router> wrapper here! Just the <nav> ---
+    <nav className="flex justify-center items-center gap-4 mt-2">
+      <NavLink
+        to="/"
+        // This className function makes NavLink work
+        className={({ isActive }) =>
+          `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
+        }
+      >
+        Combine
+      </NavLink>
+      <NavLink
+        to="/compress"
+        className={({ isActive }) =>
+          `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
+        }
+      >
+        Compress
+      </NavLink>
+      <NavLink
+        to="/zip"
+        className={({ isActive }) =>
+          `${commonLinkClass} ${isActive ? activeLinkClass : inactiveLinkClass}`
+        }
+      >
+        Zip Folder
+      </NavLink>
 
-export default App;
+      {/* --- 4. Added the theme toggle button --- */}
+      <button
+        onClick={toggleTheme}
+        className="ml-4 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-800 dark:text-gray-200"
+        aria-label="Toggle theme"
+      >
+        {currentTheme === "light" ? (
+          <MoonIcon className="h-5 w-5" />
+        ) : (
+          <SunIcon className="h-5 w-5" />
+        )}
+      </button>
+    </nav>
+  );
+};
+
+export default Navigation;
