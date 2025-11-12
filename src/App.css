@@ -794,5 +794,169 @@ html.dark .animate-shimmer {
   color: var(--color-primary-main);
 }
 /* ================================================== */
+/* 7. FORMS & INPUTS (Dark Mode Ready)               */
+/* ================================================== */
+/* ... (Keep your .form-group, .form-label, etc.) ... */
+
+.file-dropzone-input {
+  display: none;
+}
+
+/* Complex File Dropzone */
+.file-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 2rem; /* Made smaller */
+  border: 3px dashed var(--color-border);
+  border-radius: 1rem;
+  background-color: var(--color-bg-hover);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+.file-dropzone-prompt {
+  color: var(--color-text-main);
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin: 0;
+}
+.file-dropzone-text {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+.file-dropzone-icon {
+  width: 2.5rem; /* Made smaller (was 3rem) */
+  height: 2.5rem; /* Made smaller (was 3rem) */
+  color: var(--color-primary-main);
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+/* Dropzone Hover/Drag States */
+.file-dropzone:hover {
+  border-color: var(--color-primary-main);
+  background-color: var(--color-bg-card);
+}
+.file-dropzone:hover .file-dropzone-icon {
+  transform: scale(1.1) translateY(-5px);
+}
+.file-dropzone.dragging {
+  border-color: var(--color-primary-main);
+  border-style: solid;
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-focus);
+}
+.file-dropzone.dragging .file-dropzone-prompt {
+  color: var(--color-primary-dark);
+}
+
+/* File List Styles */
+.file-list-container {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.file-list-header-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.file-list-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+.file-list-clear-btn {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-primary-main);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+.file-list-clear-btn:hover {
+  text-decoration: underline;
+}
+
+.file-list {
+  margin-top: 1rem;
+  list-style: none;
+  padding: 0;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 0.5rem; /* For scrollbar spacing */
+}
+
+.file-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: var(--color-bg-hover);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  margin-bottom: 0.5rem;
+  box-shadow: var(--shadow-xs);
+  transition: all 0.2s ease;
+}
+.file-list-item:hover {
+  border-color: var(--color-primary-light);
+  background-color: var(--color-bg-card);
+}
+
+.file-list-item-details {
+  display: flex;
+  align-items: center;
+  min-width: 0; /* Important for truncation */
+}
+
+.file-list-item-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: var(--color-primary-main);
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+
+.file-list-item-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-list-item-remove-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  border-radius: 50%;
+  padding: 0.25rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  margin-left: 0.5rem;
+}
+.file-list-item-remove-btn .icon {
+  width: 1rem;
+  height: 1rem;
+}
+.file-list-item-remove-btn:hover {
+  color: var(--color-danger);
+  background-color: var(--color-bg-hover);
+}
+/* ================================================== */
 /* END OF APP.CSS                                     */
 /* ================================================== */

@@ -1,6 +1,4 @@
-// src/components/FileDropzone.jsx
-
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   DocumentArrowUpIcon,
   XMarkIcon,
@@ -31,10 +29,9 @@ const FileDropzone = ({ onFilesChange, inputProps = {}, prompt }) => {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsOver(false);
-    
-    // Convert FileList to array and add to existing files
+
     const newFiles = Array.from(e.dataTransfer.files).filter(
-      (file) => !files.some((f) => f.name === file.name) // Avoid duplicates
+      (file) => !files.some((f) => f.name === file.name)
     );
     setAndPropagateFiles([...files, ...newFiles]);
   };
@@ -44,7 +41,6 @@ const FileDropzone = ({ onFilesChange, inputProps = {}, prompt }) => {
       (file) => !files.some((f) => f.name === file.name)
     );
     setAndPropagateFiles([...files, ...newFiles]);
-    // Clear the input value to allow re-uploading the same file
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -59,19 +55,11 @@ const FileDropzone = ({ onFilesChange, inputProps = {}, prompt }) => {
     setAndPropagateFiles([]);
   };
 
-  // Dynamically set border color based on drag state
-  const dropzoneClasses = `
-    flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg 
-    cursor-pointer transition-colors duration-200 ease-in-out
-    ${
-      isOver
-        ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20"
-        : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
-    }
-  `;
+  // Dynamically add the 'dragging' class
+  const dropzoneClasses = `file-dropzone ${isOver ? "dragging" : ""}`;
 
   return (
-    <div className="w-full">
+    <div className="file-dropzone-container">
       {/* The Dropzone */}
       <div
         className={dropzoneClasses}
@@ -83,51 +71,45 @@ const FileDropzone = ({ onFilesChange, inputProps = {}, prompt }) => {
         <input
           ref={inputRef}
           type="file"
-          className="hidden"
+          className="file-dropzone-input" // Replaces 'hidden'
           onChange={onFilesSelected}
-          {...inputProps} // Apply props like 'accept', 'multiple', 'webkitdirectory'
+          {...inputProps}
         />
-        <DocumentArrowUpIcon className="w-12 h-12 text-gray-400 dark:text-gray-500 mb-4" />
-        <p className="font-semibold text-gray-700 dark:text-gray-200">
+        <DocumentArrowUpIcon className="file-dropzone-icon" />
+        <p className="file-dropzone-prompt">
           {prompt || "Drag & drop files here, or click to select"}
         </p>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
+        <p className="file-dropzone-text">
           {inputProps.accept || "All file types"}
         </p>
       </div>
 
       {/* The File List */}
       {files.length > 0 && (
-        <div className="mt-6">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        <div className="file-list-container">
+          <div className="file-list-header-wrapper">
+            <h3 className="file-list-header">
               Selected Files ({files.length})
             </h3>
-            <button
-              onClick={clearAllFiles}
-              className="text-sm font-medium text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-300"
-            >
+            <button onClick={clearAllFiles} className="file-list-clear-btn">
               Clear All
             </button>
           </div>
-          <ul className="space-y-2 max-h-60 overflow-y-auto pr-2">
+          <ul className="file-list">
             {files.map((file) => (
-              <li
-                key={file.name}
-                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm"
-              >
-                <div className="flex items-center min-w-0">
-                  <DocumentIcon className="h-5 w-5 text-primary-500 dark:text-primary-400 flex-shrink-0" />
-                  <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-200 truncate">
-                    {/* Show folder path for directory uploads */}
+              <li key={file.name} className="file-list-item">
+                <div className="file-list-item-details">
+                  <DocumentIcon className="file-list-item-icon" />
+                  <span className="file-list-item-name">
                     {file.webkitRelativePath || file.name}
                   </span>
                 </div>
                 <button
                   onClick={() => removeFile(file.name)}
-                  className="p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="file-list-item-remove-btn"
+                  aria-label={`Remove ${file.name}`}
                 >
-                  <XMarkIcon className="h-4 w-4" />
+                  <XMarkIcon className="icon" />
                 </button>
               </li>
             ))}
