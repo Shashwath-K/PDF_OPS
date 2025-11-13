@@ -2,50 +2,32 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
 
-// Accept the theme props from App.jsx
 const Navigation = ({ toggleTheme, currentTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Helper to close the mobile menu when a link is clicked
   const handleLinkClick = () => {
     setIsMenuOpen(false);
   };
 
   return (
-    // The .container class centers our nav content
-    <div className="container">
-      {/* .nav-header contains the logo and the mobile toggle */}
-      <div className="nav-header">
-        <NavLink 
-          to="/" 
-          className="nav-logo" 
-          onClick={handleLinkClick}
-        >
-          PDF-OPS
-        </NavLink>
+    // We add "nav-container" to this div to style it correctly
+    <div className="container nav-container">
+      <NavLink 
+        to="/" 
+        className="nav-logo" 
+        onClick={handleLinkClick}
+      >
+        PDF-OPS
+      </NavLink>
 
-        {/* Hamburger Toggle Button (Mobile Only) */}
-        <button
-          className={`nav-toggle ${isMenuOpen ? "open" : ""}`}
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          aria-label="Toggle navigation"
-          aria-expanded={isMenuOpen}
-        >
-          <span className="nav-toggle-bar bar-1"></span>
-          <span className="nav-toggle-bar bar-2"></span>
-          <span className="nav-toggle-bar bar-3"></span>
-        </button>
-      </div>
-
-      {/* Navigation Menu (Links + Theme Toggle) */}
-      <ul className={`nav-menu ${isMenuOpen ? "open" : ""}`}>
+      {/* --- Desktop Menu (hidden on mobile) --- */}
+      <ul className="nav-menu">
         <li className="nav-menu-item">
           <NavLink
             to="/"
             className={({ isActive }) =>
               `nav-menu-link ${isActive ? "active" : ""}`
             }
-            onClick={handleLinkClick}
           >
             Combine
           </NavLink>
@@ -56,7 +38,6 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
             className={({ isActive }) =>
               `nav-menu-link ${isActive ? "active" : ""}`
             }
-            onClick={handleLinkClick}
           >
             Compress
           </NavLink>
@@ -67,13 +48,10 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
             className={({ isActive }) =>
               `nav-menu-link ${isActive ? "active" : ""}`
             }
-            onClick={handleLinkClick}
           >
             Zip Folder
           </NavLink>
         </li>
-
-        {/* --- Theme Toggle Button --- */}
         <li className="nav-menu-item">
           <button
             onClick={toggleTheme}
@@ -88,6 +66,25 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
           </button>
         </li>
       </ul>
+
+      {/* --- Mobile Menu & Toggle (hidden on desktop) --- */}
+      <button
+        className={`nav-toggle ${isMenuOpen ? "open" : ""}`}
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        aria-label="Toggle navigation"
+        aria-expanded={isMenuOpen}
+      >
+        <span className="nav-toggle-bar bar-1"></span>
+        <span className="nav-toggle-bar bar-2"></span>
+        <span className="nav-toggle-bar bar-3"></span>
+      </button>
+
+      {/* This is the slide-out menu for mobile */}
+      <div className={`nav-mobile-menu ${isMenuOpen ? "open" : ""}`}>
+        <NavLink to="/" className="nav-mobile-link" onClick={handleLinkClick}>Combine</NavLink>
+        <NavLink to="/compress" className="nav-mobile-link" onClick={handleLinkClick}>Compress</NavLink>
+        <NavLink to="/zip" className="nav-mobile-link" onClick={handleLinkClick}>Zip Folder</NavLink>
+      </div>
     </div>
   );
 };
