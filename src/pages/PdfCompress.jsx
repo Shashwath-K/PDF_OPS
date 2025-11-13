@@ -1,11 +1,9 @@
-// src/pages/PdfCompress.jsx
-
 import React, { useState } from "react";
 import FileDropzone from "../components/FileDropzone";
-import { PDFDocument } from "pdf-lib"; // Import pdf-lib
-import JSZip from "jszip"; // Import jszip
+import { PDFDocument } from "pdf-lib";
+import JSZip from "jszip";
 
-// Re-use the helpers from the other file
+// A helper function to trigger file download
 const downloadFile = (blob, filename) => {
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
@@ -17,6 +15,7 @@ const downloadFile = (blob, filename) => {
   URL.revokeObjectURL(url);
 };
 
+// A helper to show the spinner inside the button
 const SpinnerIcon = () => (
   <svg
     className="spinner-icon"
@@ -45,37 +44,66 @@ const PdfCompress = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const [useCompression, setUseCompression] = useState(true);
+  const [useFlatten, setUseFlatten] = useState(false);
+
+  const processFile = async (file, options) => {
+    const fileBuffer = await file.arrayBuffer();
+    const pdfDoc = await PDFDocument.load(fileBuffer);
+    
+    // Apply flatten if the user checked the box
+    if (options.useFlatten) {
+      try {
+        pdfDoc.flatten();
+      } catch (flattenError) {
+        console.warn(`Could not flatten ${file.name}: ${flattenError.message}`);
+      }
+    }
+    
+    // Save the PDF with the selected options
+    return pdfDoc.save({ useObjectStreams: options.useCompression });
+  };
+
+
   const handleCompress = async () => {
     setIsLoading(true);
     setError(null);
     
+    const options = { useCompression, useFlatten };
+
     try {
-      const zip = new JSZip();
-      
-      for (const file of files) {
-        const fileBuffer = await file.arrayBuffer();
-        const pdfDoc = await PDFDocument.load(fileBuffer);
+      // --- NEW LOGIC: POINT 3 ---
+      if (files.length === 1) {
+        // --- Process a SINGLE file ---
+        const file = files[0];
+        const processedBytes = await processFile(file, options);
         
-        // This is the compression part.
-        // It rewrites the PDF using object streams.
-        const compressedBytes = await pdfDoc.save({
-          useObjectStreams: true,
-        });
+        // Create a Blob and download the single file
+        const blob = new Blob([processedBytes], { type: "application/pdf" });
+        const originalName = file.name.endsWith('.pdf') ? file.name.slice(0, -4) : file.name;
+        downloadFile(blob, `${originalName}-processed.pdf`);
+
+      } else {
+        // --- Process MULTIPLE files and zip them ---
+        const zip = new JSZip();
         
-        // Add the compressed file to the zip
-        zip.file(`compressed-${file.name}`, compressedBytes);
+        for (const file of files) {
+          const processedBytes = await processFile(file, options);
+          const originalName = file.name.endsWith('.pdf') ? file.name.slice(0, -4) : file.name;
+          zip.file(`${originalName}-processed.pdf`, processedBytes);
+        }
+        
+        // Generate the zip file
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        
+        // Download the zip
+        downloadFile(zipBlob, "pdf-ops-compressed.zip");
       }
       
-      // Generate the zip file
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      
-      // Download the zip
-      downloadFile(zipBlob, "pdf-ops-compressed.zip");
-      
-      setFiles([]);
+      setFiles([]); // Clear files after success
     } catch (err) {
       console.error(err);
-      setError("An error occurred during compression. One or more files may be corrupt or encrypted.");
+      setError("An error occurred during processing. One or more files may be corrupt or encrypted.");
     } finally {
       setIsLoading(false);
     }
@@ -84,8 +112,8 @@ const PdfCompress = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h2>Compress PDF</h2>
-        <p>Reduce file size by rewriting and compressing. Results may vary.</p>
+        <h2>Process PDFs</h2>
+        <p>Apply compression & flattening. True compression (Min/Max) is not possible in a browser.</p>
       </div>
       
       {error && (
@@ -102,6 +130,42 @@ const PdfCompress = () => {
       />
 
       {files.length > 0 && (
+        <div className="compress-options">
+          <h3>Processing Options</h3>
+          
+          <div className="form-check-group">
+            <label className="form-check-label">
+              <input 
+                type="checkbox" 
+                checked={useCompression} 
+                onChange={e => setUseCompression(e.target.checked)}
+                disabled={isLoading}
+              />
+              Compress (Use Object Streams)
+            </label>
+            <p className="form-check-help">
+              Rewrites the PDF structure. May reduce size, but can also increase it. Text is selectable.
+            </p>
+          </div>
+          
+          <div className="form-check-group">
+            <label className="form-check-label">
+              <input 
+                type="checkbox" 
+                checked={useFlatten} 
+                onChange={e => setUseFlatten(e.target.checked)}
+                disabled={isLoading}
+              />
+              Flatten Form Fields
+            </label>
+            <p className="form-check-help">
+              Makes interactive form fields (e.g., text boxes) non-editable.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {files.length > 0 && (
         <div className="page-action-buttons">
           <button
             onClick={handleCompress}
@@ -110,10 +174,10 @@ const PdfCompress = () => {
           >
             {isLoading ? (
               <>
-                <SpinnerIcon /> Compressing...
+                <SpinnerIcon /> Processing...
               </>
             ) : (
-              `Compress ${files.length} ${files.length === 1 ? "File" : "Files"}`
+              `Process ${files.length} ${files.length === 1 ? "File" : "Files"}`
             )}
           </button>
           <button
