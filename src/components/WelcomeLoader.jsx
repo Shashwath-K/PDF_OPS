@@ -1,377 +1,281 @@
-// src/components/WelcomeLoader.jsx
-import React, { useState, useEffect, useMemo, useRef } from "react";
-import { motion, AnimatePresence, useTime, useTransform } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+
+// --- Import all our doodle dependencies ---
+import { DoodleIcon } from "./DoodleIcon"; // We will wrap this
+import { SketchyFilter } from "./SketchyFilter";
+import { SketchyProgressBar } from "./SketchyProgressBar";
+import {
+  FileIcon,
+  FolderIcon,
+  DocumentIcon,
+  WebIcon,
+  ImageIcon,
+  CodeIcon,
+  ZipIcon,
+} from "./DoodleIcons";
 
 // --- Configuration Constants ---
-const LOADER_VISIBLE_DURATION_MS = 7000; // 7 seconds visible time
-const FADE_OUT_DURATION_MS = 600;        // Fade out time
+const LOADER_VISIBLE_DURATION_MS = 6000;
+const FADE_OUT_DURATION_MS = 500;
 
-// --- Matrix Theming Colors ---
-const MATRIX_GREEN_DARK = "#003b00";
-const MATRIX_GREEN = "#22c55e"; // Tailwind green-500
-const MATRIX_GREEN_LIGHT = "#a3e635"; // Tailwind lime-400
-const MATRIX_GREEN_BRIGHT = "#ccffdd";
-const MATRIX_BLACK = "#000000";
+// --- NEW "Funky" Crayon Color Palette ---
+const DOODLE_BG_COLOR = "#fdfbf5"; // A warmer "sketchbook" paper
+const DOODLE_STROKE_COLOR = "#4a2c2a"; // A dark "sepia" brown, like old ink
 
-// Character sets for rain & text animation
-const KATAKANA_CHARS = "ﾊﾐﾋｰｳｼﾅﾓﾆｻﾜﾂｵﾘｱﾎﾃﾏｹﾒｴｶｷﾑﾕﾗｾﾈｽﾀﾇﾍｦｲｸｺｿﾁﾄﾉﾌﾔﾖﾙﾚﾛﾝ";
-const ASCII_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz<>/?!@#$%^&*()-+=~[]{}|;:,.";
-const BINARY_CHARS = "01";
-const CRYPTIC_CHARS = "ΣΔΠΓΞΨΩαβγδεζηθικλμνξπρστυφχψω"; // Greek letters
+// Crayon Colors for Icons
+const DOODLE_RED = "#e63946";
+const DOODLE_BLUE = "#1d3557";
+const DOODLE_GREEN = "#52b788";
+const DOODLE_PURPLE = "#6a4c93";
+const DOODLE_ORANGE = "#f77f00";
 
-const GRID_SIZE = 60; // grid cell size for pulsing grid
-const RAIN_FONT_SIZE = 16;
-const BASE_RAIN_SPEED = 80;
+const CRAYON_BOX = [
+  DOODLE_RED,
+  DOODLE_BLUE,
+  DOODLE_GREEN,
+  DOODLE_PURPLE,
+  DOODLE_ORANGE,
+];
 
-// Get random character helper
-const getRandomChar = (charSet) => charSet[Math.floor(Math.random() * charSet.length)];
+// Helper to get random array item
+const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
+// Helper to get random number in a range
+const randomRange = (min, max) => Math.random() * (max - min) + min;
 
-// --- PulsingGrid Component ---
-const PulsingGrid = () => {
-  const time = useTime();
-  const rotateZ = useTransform(time, [0, 30000], [0, 360], { clamp: false });
-  const lineOpacity = useTransform(time, t => 0.08 + 0.06 * Math.sin(t / 2000));
+// ===================================================================
+//  NEW COMPONENT 1: AnimatedDoodleText
+//  This component handles the "funky" text animation.
+// ===================================================================
+const AnimatedDoodleText = ({ text, color }) => {
+  const letters = text.split("");
 
-  return (
-    <motion.div
-      className="absolute inset-0 w-full h-full overflow-hidden"
-      style={{ perspective: '1200px' }}
-    >
-      <motion.div
-        style={{
-          position: 'absolute',
-          top: '50%', left: '50%',
-          width: '300%', height: '300%',
-          translateX: '-50%', translateY: '-50%',
-          rotateX: '75deg',
-          rotateZ: rotateZ,
-          backgroundSize: `${GRID_SIZE}px ${GRID_SIZE}px`,
-          backgroundImage: useTransform(lineOpacity, o =>
-            `linear-gradient(to right, rgba(34, 197, 94, ${o}) 1px, transparent 1px),
-             linear-gradient(to bottom, rgba(34, 197, 94, ${o}) 1px, transparent 1px)`
-          ),
-          maskImage: 'radial-gradient(ellipse at center, white 5%, transparent 50%)',
-          WebkitMaskImage: 'radial-gradient(ellipse at center, white 5%, transparent 50%)',
-        }}
-        initial={{ opacity: 0, scale: 1.1 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2.5, delay: 0.1, ease: 'easeOut' }}
-      />
-    </motion.div>
-  );
-};
-
-// --- MatrixRainLayer Component ---
-const MatrixRainLayer = ({
-  charSet = KATAKANA_CHARS,
-  fontSize = RAIN_FONT_SIZE,
-  opacity = 0.5,
-  speed = BASE_RAIN_SPEED,
-  highlightChance = 0.08,
-  zIndex = 1,
-  blur = 0,
-}) => {
-  const [columns, setColumns] = useState([]);
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const calculateColumns = () => {
-      if (!containerRef.current) return;
-      const width = containerRef.current.offsetWidth;
-      const numCols = Math.floor(width / (fontSize * 0.8));
-      setColumns(Array.from({ length: numCols }).map((_, i) => ({
-        id: i,
-        initialDelay: Math.random() * 8000,
-        yPosition: Math.random() * -window.innerHeight * 2,
-        speedVariance: Math.random() * 0.5 + 0.75,
-      })));
-    };
-    let resizeTimeout;
-    const handleResize = () => {
-      clearTimeout(resizeTimeout);
-      resizeTimeout = setTimeout(calculateColumns, 200);
-    };
-    calculateColumns();
-    window.addEventListener('resize', handleResize);
-    return () => {
-      clearTimeout(resizeTimeout);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [fontSize]);
-
-  return (
-    <div
-      ref={containerRef}
-      className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none"
-      style={{
-        fontFamily: "'Courier New', Courier, monospace",
-        fontSize: `${fontSize}px`,
-        opacity,
-        zIndex,
-        filter: blur > 0 ? `blur(${blur}px)` : 'none',
-      }}
-    >
-      {columns.map(col => (
-        <MatrixColumn
-          key={col.id}
-          columnIndex={col.id}
-          charSet={charSet}
-          fontSize={fontSize}
-          initialDelay={col.initialDelay}
-          initialY={col.yPosition}
-          speed={speed * col.speedVariance}
-          highlightChance={highlightChance}
-        />
-      ))}
-    </div>
-  );
-};
-
-// --- MatrixColumn Component ---
-const MatrixColumn = ({
-  columnIndex,
-  charSet,
-  fontSize,
-  initialDelay,
-  initialY,
-  speed,
-  highlightChance
-}) => {
-  const [chars, setChars] = useState([]);
-  const intervalRef = useRef(null);
-  const yPosition = useRef(initialY);
-  const leftPosition = useMemo(() => `${columnIndex * (fontSize * 0.7)}px`, [columnIndex, fontSize]);
-
-  useEffect(() => {
-    const startTimeout = setTimeout(() => {
-      intervalRef.current = setInterval(() => {
-        const newChar = getRandomChar(charSet);
-        const isHighlight = Math.random() < highlightChance;
-        setChars(prevChars => {
-          const newCharData = {
-            char: newChar,
-            y: yPosition.current,
-            highlight: isHighlight,
-            id: performance.now() + Math.random(),
-            opacity: 1,
-          };
-          const updatedChars = prevChars
-            .map(c => ({ ...c, opacity: Math.max(0, 1 - (yPosition.current - c.y) / (window.innerHeight * 0.6)) }))
-            .filter(c => c.opacity > 0.05);
-          return [newCharData, ...updatedChars];
-        });
-        yPosition.current += fontSize;
-        if (yPosition.current > window.innerHeight * 1.3) {
-          yPosition.current = Math.random() * -window.innerHeight * 0.5;
-        }
-      }, speed);
-    }, initialDelay);
-    return () => {
-      clearTimeout(startTimeout);
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [initialDelay, speed, charSet, fontSize, highlightChance]);
-
-  return (
-    <div
-      className="absolute top-0 h-full"
-      style={{ left: leftPosition, width: `${fontSize}px` }}
-    >
-      {chars.map(c => (
-        <span
-          key={c.id}
-          style={{
-            position: 'absolute',
-            top: `${c.y}px`,
-            left: 0,
-            color: c.highlight ? MATRIX_GREEN_BRIGHT : MATRIX_GREEN,
-            textShadow: c.highlight ? `0 0 10px ${MATRIX_GREEN_LIGHT}` : 'none',
-            opacity: c.opacity,
-            transition: 'opacity 0.5s linear',
-            userSelect: 'none'
-          }}
-        >
-          {c.char}
-        </span>
-      ))}
-    </div>
-  );
-};
-
-// --- CodeRevealText Component ---
-const CodeRevealText = ({
-  text,
-  delay,
-  className = "",
-  charSet = ASCII_CHARS + BINARY_CHARS,
-  fontSize = "inherit",
-  cryptic = false,
-}) => {
-  const characters = text.split("");
-  const baseDelay = delay;
-  const animationDuration = cryptic ? 0.08 : 0.05;
-
-  const variants = {
+  // Animation variants for Framer Motion
+  const containerVariants = {
     hidden: { opacity: 0 },
-    visible: i => ({
+    visible: {
       opacity: 1,
-      transition: { delay: baseDelay + i * animationDuration },
-    }),
+      transition: {
+        // This makes each letter appear one after the other
+        staggerChildren: 0.08, // Time between each letter
+        delayChildren: 1.5, // Wait 1.5s after loader starts
+      },
+    },
+  };
+
+  const letterVariants = {
+    hidden: {
+      opacity: 0,
+      scale: 0.2,
+      y: 50,
+      rotate: -45,
+    },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      rotate: 0,
+      transition: {
+        type: "spring", // Gives it a bouncy, "funky" feel
+        damping: 12,
+        stiffness: 200,
+      },
+    },
   };
 
   return (
-    <motion.div
-      className={`flex justify-center flex-wrap tracking-wider ${className}`}
-      style={{ fontFamily: "'Doto', 'Courier New', monospace", fontSize: fontSize }}
+    <motion.h1
+      className="font-doodle text-5xl sm:text-7xl relative z-10 select-none"
+      style={{
+        filter: "url(#sketchy)", // Apply the pencil filter
+        color: color,
+      }}
+      variants={containerVariants}
       initial="hidden"
       animate="visible"
       aria-label={text}
     >
-      {characters.map((char, index) => (
-        <CharacterAnimator
-          key={`${char}-${index}`}
-          targetChar={char === " " ? "\u00A0" : char}
-          custom={index}
-          variants={variants}
-          charSet={charSet}
-          cycleDuration={baseDelay + index * animationDuration + (cryptic ? 1.0 : 0.6)}
-          cryptic={cryptic}
-        />
+      {letters.map((letter, index) => (
+        <motion.span
+          key={`${letter}-${index}`}
+          variants={letterVariants}
+          className="inline-block"
+        >
+          {/* Use non-breaking space for actual spaces */}
+          {letter === " " ? "\u00A0" : letter}
+        </motion.span>
       ))}
+    </motion.h1>
+  );
+};
+
+// ===================================================================
+//  NEW COMPONENT 2: FloatingDoodleIcon
+//  This wraps the original DoodleIcon to add continuous floating.
+// ===================================================================
+const FloatingDoodleIcon = ({
+  children,
+  top,
+  left,
+  x,
+  y,
+  rotate,
+  delay,
+  opacity,
+  color,
+  size,
+}) => {
+  // Random values for the continuous floating animation
+  const floatY = randomRange(-15, 15);
+  const floatX = randomRange(-10, 10);
+  const floatRotate = randomRange(-8, 8);
+  const floatDuration = randomRange(2.5, 4.5);
+
+  return (
+    <motion.div
+      // This is the continuous floating animation
+      animate={{
+        y: [0, floatY, 0],
+        x: [0, floatX, 0],
+        rotate: [0, floatRotate, 0],
+      }}
+      transition={{
+        duration: floatDuration,
+        ease: "easeInOut",
+        repeat: Infinity,
+        repeatType: "mirror",
+      }}
+      style={{
+        position: "absolute",
+        top: top,
+        left: left,
+        zIndex: 10,
+        opacity: opacity, // Use the passed-in opacity
+        color: color, // Use the passed-in color
+        width: size,
+        height: size,
+      }}
+    >
+      {/* This is the original fly-in animation from DoodleIcon.jsx */}
+      <DoodleIcon x={x} y={y} rotate={rotate} delay={delay}>
+        {children}
+      </DoodleIcon>
     </motion.div>
   );
 };
 
-// --- CharacterAnimator helper ---
-const CharacterAnimator = ({
-  targetChar,
-  custom,
-  variants,
-  charSet,
-  cycleDuration,
-  cryptic,
-}) => {
-  const [currentChar, setCurrentChar] = useState(getRandomChar(charSet));
-  const time = useTime();
-  const shouldSettle = useTransform(time, t => t / 1000 > cycleDuration);
-  const intervalRef = useRef(null);
-
-  useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      if (shouldSettle.get()) {
-        setCurrentChar(targetChar);
-        clearInterval(intervalRef.current);
-      } else {
-        setCurrentChar(getRandomChar(charSet));
-      }
-    }, cryptic ? 80 : 50);
-
-    return () => clearInterval(intervalRef.current);
-  }, [targetChar, charSet, shouldSettle, cryptic]);
-
-  return (
-    <motion.span
-      custom={custom}
-      variants={variants}
-      className="inline-block"
-      style={{
-        color: cryptic
-          ? `hsl(${120 + (Math.random() - 0.5) * 30}, 60%, ${40 + Math.random() * 15}%)`
-          : `hsl(${120 + (Math.random() - 0.5) * 15}, 80%, ${70 + Math.random() * 15}%)`,
-        textShadow: `0 0 ${cryptic ? 2 : 4}px ${MATRIX_GREEN}`,
-        userSelect: "none",
-      }}
-    >
-      {currentChar}
-    </motion.span>
-  );
-};
-
-// --- ScanLineOverlay Component ---
-const ScanLineOverlay = () => (
-  <div
-    className="absolute inset-0 w-full h-full pointer-events-none opacity-10 z-30"
-    style={{
-      background: `linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.3) 50%)`,
-      backgroundSize: `100% 4px`,
-      userSelect: "none",
-    }}
-  />
-);
-
-// --- WelcomeLoader Component ---
+// ===================================================================
+//  MAIN COMPONENT: WelcomeLoader
+//  Now using the new components and a lot more icons.
+// ===================================================================
 const WelcomeLoader = ({ onAnimationComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
 
+  // Timer logic - remains the same
   useEffect(() => {
-    const fadeOutTimer = setTimeout(() => setIsVisible(false), LOADER_VISIBLE_DURATION_MS);
-    const completionTimer = setTimeout(onAnimationComplete, LOADER_VISIBLE_DURATION_MS + FADE_OUT_DURATION_MS);
+    const fadeOutTimer = setTimeout(
+      () => setIsVisible(false),
+      LOADER_VISIBLE_DURATION_MS
+    );
+    const completionTimer = setTimeout(
+      onAnimationComplete,
+      LOADER_VISIBLE_DURATION_MS + FADE_OUT_DURATION_MS
+    );
     return () => {
       clearTimeout(fadeOutTimer);
       clearTimeout(completionTimer);
     };
   }, [onAnimationComplete]);
 
+  // --- Create a list of 20 random icons for the background ---
+  const backgroundIcons = Array.from({ length: 20 }).map((_, i) => {
+    const iconType = getRandom([
+      FileIcon,
+      FolderIcon,
+      DocumentIcon,
+      WebIcon,
+      ImageIcon,
+      CodeIcon,
+      ZipIcon,
+    ]);
+    return {
+      id: i,
+      Icon: iconType,
+      top: `${randomRange(5, 95)}%`,
+      left: `${randomRange(5, 95)}%`,
+      x: randomRange(-200, 200),
+      y: randomRange(-200, 200),
+      rotate: randomRange(-90, 90),
+      delay: randomRange(0, 2),
+      opacity: randomRange(0.1, 0.4), // Different opacities for depth
+      color: getRandom(CRAYON_BOX), // Different colors
+      size: `${randomRange(50, 120)}px`, // Different sizes
+    };
+  });
+
   return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          key="matrix-loader-final"
-          className="fixed inset-0 w-full h-full flex flex-col items-center justify-center z-[2500] overflow-hidden bg-black"
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: FADE_OUT_DURATION_MS / 1000, ease: "easeOut" } }}
-        >
-          {/* Background Layers */}
-          <PulsingGrid />
-          <MatrixRainLayer charSet={BINARY_CHARS} fontSize={12} opacity={0.15} speed={BASE_RAIN_SPEED * 1.5} zIndex={1} blur={1.5} />
-          <MatrixRainLayer charSet={KATAKANA_CHARS} fontSize={RAIN_FONT_SIZE} opacity={0.3} speed={BASE_RAIN_SPEED} zIndex={2} highlightChance={0.1} />
-          <MatrixRainLayer charSet={ASCII_CHARS} fontSize={14} opacity={0.2} speed={BASE_RAIN_SPEED * 0.8} zIndex={3} highlightChance={0.05} />
-          <ScanLineOverlay />
+    <>
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&display=swap');
+          .font-doodle {
+            font-family: 'Gochi Hand', cursive;
+          }
+        `}
+      </style>
 
-          {/* Foreground Content - Centered */}
-          <div className="relative z-10 flex flex-col items-center justify-center text-center p-4 select-none">
-            {/* Cryptic Subtext 1 */}
-            <div className="mb-4 text-xs sm:text-sm text-green-700 opacity-60 w-full max-w-sm mx-auto">
-              <CodeRevealText
-                text="Est. Connection :: PDF_OPERATIONS"
-                delay={0.8}
-                charSet={CRYPTIC_CHARS + BINARY_CHARS}
-                cryptic={true}
-              />
-            </div>
+      {/* Renders the hidden SVG filter */}
+      <SketchyFilter />
 
-            {/* Main Text */}
-            <div
-              className="text-3xl sm:text-5xl lg:text-6xl text-green-400 font-black"
-              style={{ textShadow: `0 0 15px ${MATRIX_GREEN}` }}
-            >
-              <CodeRevealText text="Initializing PDF Toolkit" delay={2.0} fontSize="inherit" />
-            </div>
+      <AnimatePresence>
+        {isVisible && (
+          <motion.div
+            key="doodle-loader-complex"
+            className="fixed inset-0 w-full h-full flex flex-col items-center justify-center z-[2500] overflow-hidden"
+            style={{
+              backgroundColor: DOODLE_BG_COLOR,
+              color: DOODLE_STROKE_COLOR, // Default "pencil" color
+            }}
+            initial={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+              transition: {
+                duration: FADE_OUT_DURATION_MS / 1000,
+                ease: "easeOut",
+              },
+            }}
+          >
+            {/* --- Render all 20 background icons --- */}
+            {backgroundIcons.map((icon) => (
+              <FloatingDoodleIcon
+                key={icon.id}
+                top={icon.top}
+                left={icon.left}
+                x={icon.x}
+                y={icon.y}
+                rotate={icon.rotate}
+                delay={icon.delay}
+                opacity={icon.opacity}
+                color={icon.color}
+                size={icon.size}
+              >
+                <icon.Icon />
+              </FloatingDoodleIcon>
+            ))}
 
-            {/* Cryptic Subtext 2 */}
-            <div className="mt-4 text-xs sm:text-sm text-green-700 opacity-60 w-full max-w-sm mx-auto">
-              <CodeRevealText
-                text="Executing:: /bin/pdf_toolkit_core"
-                delay={3.5}
-                charSet={CRYPTIC_CHARS + ASCII_CHARS}
-                cryptic={true}
-              />
-            </div>
-          </div>
+            {/* --- Centered Loading Text --- */}
+            {/* Use the new AnimatedDoodleText component */}
+            <AnimatedDoodleText text="Loading Toolkit..." color={DOODLE_STROKE_COLOR} />
 
-          {/* Progress Bar */}
-          <div className="absolute bottom-0 left-0 w-full h-[3px] overflow-hidden z-20">
-            <motion.div
-              className="h-full bg-gradient-to-r from-green-400 via-emerald-400 to-green-500"
-              initial={{ width: '0%' }}
-              animate={{ width: '100%' }}
-              transition={{ duration: LOADER_VISIBLE_DURATION_MS / 1000, ease: 'linear', delay: 0.1 }}
-              style={{ boxShadow: `0 0 12px 1px ${MATRIX_GREEN}` }}
+            {/* --- Sketchy Progress Bar --- */}
+            <SketchyProgressBar
+              duration={LOADER_VISIBLE_DURATION_MS}
+              color={DOODLE_STROKE_COLOR}
             />
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 
