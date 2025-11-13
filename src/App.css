@@ -1,7 +1,7 @@
 /* =================================================================== */
 /* APP.CSS - PDF-OPS (v2.0 - Complex & Responsive)
 /*
-/* This is a complete, production-ready stylesheet.
+/* This is the complete, final, and de-duplicated stylesheet.
 /* It uses CSS variables for theming and a flexbox-based
 /* layout to ensure all content is properly centered.
 /* =================================================================== */
@@ -157,7 +157,7 @@ html.dark body {
 }
 
 #root {
-  min-height: 100vh; /* Changed from height to min-height */
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -214,7 +214,6 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Fluid Typography using clamp() */
 h1 { font-size: clamp(2rem, 5vw, 3rem); }
 h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
 h3 { font-size: clamp(1.5rem, 3.5vw, 2rem); }
@@ -250,7 +249,7 @@ code {
 }
 
 /* ================================================== */
-/* 5. LAYOUT & APP STRUCTURE (THE CENTERING FIX)      */
+/* 5. LAYOUT & APP STRUCTURE (CENTERING)              */
 /* ================================================== */
 .container {
   width: 100%;
@@ -264,7 +263,7 @@ code {
 /* Full-width header (frosted) */
 .app-header {
   width: 100%;
-  padding: 0.75rem 0; /* Reduced padding */
+  padding: 0.75rem 0;
   position: sticky;
   top: 0;
   z-index: 50;
@@ -279,7 +278,6 @@ html.dark .app-header {
   background-color: rgba(15, 23, 42, 0.7); /* Dark mode glass (slate-900) */
 }
 
-/* --- THIS IS THE CENTERING FIX --- */
 /* This .app-main class wraps the <main> element */
 .app-main {
   flex-grow: 1; /* Pushes footer down */
@@ -308,10 +306,8 @@ html.dark .app-header {
   .app-main { padding: 1rem; }
   .content-card { padding: 1.5rem; }
 }
-/* ---------------------------------- */
 
 /* Full-width footer */
-
 .app-footer {
   width: 100%;
   padding: 2.2rem 0;
@@ -338,13 +334,12 @@ html.dark .app-header {
 }
 
 /* ================================================== */
-/* 8. NAVIGATION (Responsive & Animated)              */
+/* 6. NAVIGATION (Responsive & Animated)              */
 /* ================================================== */
-.nav-header {
+.nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  width: 100%;
 }
 .nav-logo {
   font-size: 1.5rem;
@@ -352,80 +347,14 @@ html.dark .app-header {
   color: var(--color-text-main);
   text-decoration: none;
   padding: 0.25rem 0;
-  /* Added transition for hover effect */
   transition: color 0.3s ease, transform 0.3s ease;
 }
 .nav-logo:hover {
   text-decoration: none;
   color: var(--color-primary-main);
-  /* Added scale animation */
   transform: scale(1.03);
 }
-.nav-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.nav-toggle {
-  display: none;
-}
-.nav-mobile-menu {
-  display: none;
-}
-
-@media (max-width: 768px) {
-  /* Show the hamburger toggle */
-  .nav-toggle {
-    display: block;
-    z-index: 1001; /* Make sure it's on top */
-  }
-
-  /* Hide the desktop menu */
-  .nav-menu {
-    display: none;
-  }
-  
-  /* Style the new mobile menu container */
-  .nav-mobile-menu {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: var(--color-bg-card);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    z-index: 1000;
-    
-    /* Animation */
-    opacity: 0;
-    transform: translateY(-100%);
-    transition: all 0.3s ease-in-out;
-    pointer-events: none;
-  }
-  .nav-mobile-menu.open {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-  
-  /* Style the links inside the mobile menu */
-  .nav-mobile-link {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--color-text-main);
-    text-decoration: none;
-  }
-  .nav-mobile-link:hover {
-    color: var(--color-primary-main);
-  }
-}
 /* Hamburger Toggle - Mobile Only */
 .nav-toggle {
   display: none;
@@ -444,7 +373,6 @@ html.dark .app-header {
   border-radius: 2px;
   transition: all 0.3s ease-in-out;
 }
-/* Animated hamburger icon */
 .nav-toggle.open .bar-1 { transform: rotate(45deg) translate(5px, 6px); }
 .nav-toggle.open .bar-2 { opacity: 0; }
 .nav-toggle.open .bar-3 { transform: rotate(-45deg) translate(5px, -6px); }
@@ -453,7 +381,6 @@ html.dark .app-header {
 .nav-menu {
   display: flex;
   align-items: center;
-  /* Increased gap for better spacing */
   gap: 1rem;
   list-style: none;
   padding: 0;
@@ -466,16 +393,15 @@ html.dark .app-header {
 
 /* Desktop Menu Links */
 .nav-menu-link {
-  padding: 0.5rem 1rem; /* Adjusted padding for pill shape */
+  padding: 0.5rem 1rem;
   font-weight: 600;
   font-size: 1rem;
   color: var(--color-text-muted);
   cursor: pointer;
-  /* Added transform to transition for animation */
   transition: all 0.3s ease;
-  border-bottom: 3px solid transparent; /* Kept for structure */
+  border-bottom: 3px solid transparent;
   text-decoration: none;
-  border-radius: 0.75rem; /* Rounded for pill shape */
+  border-radius: 0.75rem;
 }
 .nav-menu-link:hover,
 .nav-menu-link:focus-visible {
@@ -483,16 +409,12 @@ html.dark .app-header {
   background-color: var(--color-bg-hover);
   text-decoration: none;
   outline: none;
-  /* Added "lift" animation on hover */
   transform: translateY(-2px);
 }
-
-/* --- RE-STYLED Active Link --- */
 .nav-menu-link.active,
 .nav-menu-link[aria-current="page"] {
   color: var(--color-primary-dark);
   font-weight: 700;
-  /* Replaced border with a modern pill background */
   background-color: var(--color-bg-hover);
   border-bottom-color: transparent;
 }
@@ -513,7 +435,6 @@ html.dark .nav-menu-link[aria-current="page"] {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  /* Added transform to transition for animation */
   transition: all 0.3s ease;
   margin-left: 0.5rem;
 }
@@ -523,7 +444,6 @@ html.dark .nav-menu-link[aria-current="page"] {
   border-color: var(--color-primary-main);
   background-color: var(--color-bg-hover);
   outline: none;
-  /* Added playful scale/rotate animation */
   transform: scale(1.1) rotate(15deg);
 }
 .theme-toggle-btn .icon {
@@ -531,54 +451,62 @@ html.dark .nav-menu-link[aria-current="page"] {
   height: 1.25rem;
 }
 
+/* Mobile-only menu container */
+.nav-mobile-menu {
+  display: none;
+}
+
 /* ================================================== */
-/* 9. NAVIGATION - RESPONSIVE (Merged)                */
+/* 7. NAVIGATION - RESPONSIVE                         */
 /* ================================================== */
 @media (max-width: 768px) {
   .nav-toggle {
     display: block;
   }
   
+  /* Hide desktop menu on mobile */
   .nav-menu {
-    position: fixed;
-    /* Adjusted top to match header height in App.css */
-    top: 65px; 
-    left: 0;
-    right: 0;
-    bottom: 0;
+    display: none;
+  }
+  
+  /* Show and style mobile menu */
+  .nav-mobile-menu {
+    display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: center;
-    padding: 2rem 1rem; /* Added padding */
-    gap: 1.5rem;
+    justify-content: center;
+    gap: 2rem;
+    position: fixed;
+    top: 0; /* Changed from 65px to 0 for full screen */
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-color: var(--color-bg-card);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    transform: translateX(100%);
-    transition: transform 0.3s ease-in-out;
     z-index: 1000;
-    overflow-y: auto;
+    
+    /* Animation */
+    opacity: 0;
+    transform: translateY(-100%);
+    transition: all 0.3s ease-in-out;
+    pointer-events: none;
   }
-  .nav-menu.open {
-    transform: translateX(0);
+  .nav-mobile-menu.open {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
   }
   
   /* Mobile Menu Links */
-  .nav-menu-link {
-    font-size: 1.25rem;
-    width: 100%;
-    text-align: center;
-    padding: 0.75rem 1rem;
+  .nav-mobile-link {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-text-main);
+    text-decoration: none;
   }
-  .nav-menu-link:hover,
-  .nav-menu-link:focus-visible {
-    /* Disable "lift" on mobile, just keep background */
-    transform: translateY(0);
-  }
-  .nav-menu-link.active,
-  .nav-menu-link[aria-current="page"] {
-    /* Ensure active pill style applies on mobile too */
-    border-bottom-color: transparent;
+  .nav-mobile-link:hover {
+    color: var(--color-primary-main);
   }
   
   /* Mobile Theme Toggle */
@@ -597,8 +525,9 @@ html.dark .nav-menu-link[aria-current="page"] {
     height: 1.5rem;
   }
 }
+
 /* ================================================== */
-/* 7. BUTTONS                                         */
+/* 8. BUTTONS                                         */
 /* ================================================== */
 .btn {
   cursor: pointer;
@@ -636,11 +565,24 @@ html.dark .nav-menu-link[aria-current="page"] {
 }
 
 /* Button Variants */
-.btn-secondary { background-color: var(--color-text-body); }
-.btn-secondary:hover:not(:disabled) { background-color: var(--color-text-main); }
+.btn-secondary {
+  background-color: transparent;
+  border: 2px solid var(--color-border);
+  color: var(--color-text-muted);
+  box-shadow: none;
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--color-bg-hover);
+  border-color: var(--color-border);
+  color: var(--color-text-main);
+  transform: translateY(0);
+  box-shadow: none;
+}
+
 .btn-success { background-color: var(--color-success); }
 .btn-success:hover:not(:disabled) { background-color: #15803d; }
 html.dark .btn-success:hover:not(:disabled) { background-color: #16a34a; }
+
 .btn-danger { background-color: var(--color-danger); }
 .btn-danger:hover:not(:disabled) { background-color: #991b1b; }
 html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
@@ -665,7 +607,7 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
 }
 
 /* ================================================== */
-/* 8. FORMS & INPUTS                                  */
+/* 9. FORMS & INPUTS                                  */
 /* ================================================== */
 .form-group {
   margin-bottom: 1.5rem;
@@ -698,7 +640,7 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
 }
 
 /* ================================================== */
-/* 9. FILE DROPZONE COMPONENT                         */
+/* 10. FILE DROPZONE COMPONENT                         */
 /* ================================================== */
 .file-dropzone-input {
   display: none;
@@ -851,7 +793,7 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
 }
 
 /* ================================================== */
-/* 10. PAGE-SPECIFIC LAYOUTS                          */
+/* 11. PAGE-SPECIFIC LAYOUTS                          */
 /* ================================================== */
 .page-container {
   display: flex;
@@ -873,8 +815,15 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
   margin-top: 1rem; /* Add extra space above the button */
 }
 
+.page-action-buttons {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Space between buttons */
+}
+
 /* ================================================== */
-/* 11. ALERTS & MESSAGES                             */
+/* 12. ALERTS & MESSAGES                             */
 /* ================================================== */
 .alert {
   max-width: 36rem;
@@ -914,7 +863,7 @@ html.dark .alert-success {
 }
 
 /* ================================================== */
-/* 12. LOADERS, MODALS & TOOLTIPS (NEW)             */
+/* 13. LOADERS, MODALS & TOOLTIPS                     */
 /* ================================================== */
 
 /* Loading Overlay & Spinner */
@@ -943,6 +892,14 @@ html.dark .alert-success {
   border-top: 5px solid transparent;
   border-radius: 50%;
   animation: spin 1.2s linear infinite;
+}
+.spinner-icon {
+  width: 1.25em;
+  height: 1.25em;
+  margin-right: 0.75em;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  vertical-align: middle;
 }
 
 /* Skeleton Loader */
@@ -1025,7 +982,7 @@ html.dark .alert-success {
 }
 
 /* ================================================== */
-/* 13. UTILITY & ACCESSIBILITY CLASSES                */
+/* 14. UTILITY & ACCESSIBILITY CLASSES                */
 /* ================================================== */
 .text-center { text-align: center !important; }
 .text-left { text-align: left !important; }
@@ -1033,7 +990,7 @@ html.dark .alert-success {
 .text-primary { color: var(--color-primary-main) !important; }
 .text-muted { color: var(--color-text-muted) !important; }
 .text-danger { color: var(--color-danger) !important; }
-.text-success { color: var(--color-success) !Vimportant; }
+.text-success { color: var(--color-success) !important; }
 
 .w-full { width: 100% !important; }
 .min-h-screen { min-height: 100vh !important; }
@@ -1073,7 +1030,7 @@ html.dark .alert-success {
 .p-8 { padding: 2rem; }
 
 /* ================================================== */
-/* 14. SCROLLBAR STYLING                              */
+/* 15. SCROLLBAR STYLING                              */
 /* ================================================== */
 ::-webkit-scrollbar {
   width: 10px;
