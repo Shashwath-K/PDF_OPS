@@ -327,8 +327,10 @@ html.dark .app-header {
 .footer-text {
   font-size: 0.875rem;
   color: var(--color-text-muted);
-  margin: 0.25rem 0;
   line-height: 1.6;
+  max-width: none; 
+  margin: 0.25rem 0; 
+  text-align: center;
 }
 .footer-brand {
   font-weight: 700;
