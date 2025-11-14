@@ -4,6 +4,24 @@ PDF-OPS is a client-side web application built with React, designed to perform c
 
 > All operations are performed entirely on the client-side. No files are ever uploaded to a server, ensuring user privacy and speed.
 
+## Project Structure
+```
+src/
+├── components/
+│   ├── Navigation.jsx
+│   ├── Footer.jsx
+│   ├── WelcomeLoader.jsx
+│   └── ScrollToTop.jsx   
+├── layouts/
+│   └── PdfMain.jsx       
+├── pages/
+│   ├── PdfCombine.jsx
+│   ├── PdfCompress.jsx
+│   └── ZipFolder.jsx
+├── App.jsx
+├── App.css
+└── index.js
+```
 ## Features
 
 - **Combine PDFs:** Merge multiple PDF documents into a single, combined file.
