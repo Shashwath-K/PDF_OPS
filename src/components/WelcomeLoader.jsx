@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
-// --- Import all our doodle dependencies ---
-import { DoodleIcon } from "./DoodleIcon"; // We will wrap this
+import logo from "../assets/logo/favicon.png"; // <-- LOGO IMPORTED
+import { DoodleIcon } from "./DoodleIcon";
 import { SketchyFilter } from "./SketchyFilter";
 import { SketchyProgressBar } from "./SketchyProgressBar";
 import {
@@ -19,11 +18,9 @@ import {
 const LOADER_VISIBLE_DURATION_MS = 6000;
 const FADE_OUT_DURATION_MS = 500;
 
-// --- NEW "Funky" Crayon Color Palette ---
-const DOODLE_BG_COLOR = "#fdfbf5"; // A warmer "sketchbook" paper
-const DOODLE_STROKE_COLOR = "#4a2c2a"; // A dark "sepia" brown, like old ink
-
-// Crayon Colors for Icons
+// --- Crayon Color Palette ---
+const DOODLE_BG_COLOR = "#fdfbf5";
+const DOODLE_STROKE_COLOR = "#4a2c2a";
 const DOODLE_RED = "#e63946";
 const DOODLE_BLUE = "#1d3557";
 const DOODLE_GREEN = "#52b788";
@@ -44,74 +41,36 @@ const getRandom = (arr) => arr[Math.floor(Math.random() * arr.length)];
 const randomRange = (min, max) => Math.random() * (max - min) + min;
 
 // ===================================================================
-//  NEW COMPONENT 1: AnimatedDoodleText
-//  This component handles the "funky" text animation.
+//  NEW COMPONENT 1: LoadingText
+//  This component displays the "Loading..." text in Montserrat Thin
+//  with a simple pulsing animation.
 // ===================================================================
-const AnimatedDoodleText = ({ text, color }) => {
-  const letters = text.split("");
-
-  // Animation variants for Framer Motion
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        // This makes each letter appear one after the other
-        staggerChildren: 0.08, // Time between each letter
-        delayChildren: 1.5, // Wait 1.5s after loader starts
-      },
-    },
-  };
-
-  const letterVariants = {
-    hidden: {
-      opacity: 0,
-      scale: 0.2,
-      y: 50,
-      rotate: -45,
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      rotate: 0,
-      transition: {
-        type: "spring", // Gives it a bouncy, "funky" feel
-        damping: 12,
-        stiffness: 200,
-      },
-    },
-  };
-
+const LoadingText = ({ color }) => {
   return (
     <motion.h1
-      className="font-doodle text-5xl sm:text-7xl relative z-10 select-none"
+      className="font-montserrat-thin text-3xl sm:text-4xl" // Using the new font class
       style={{
-        filter: "url(#sketchy)", // Apply the pencil filter
         color: color,
+        // The sketchy filter is NOT applied here for a clean look
       }}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      aria-label={text}
+      // Add a simple pulse animation
+      animate={{
+        opacity: [0.6, 1, 0.6],
+      }}
+      transition={{
+        duration: 2,
+        ease: "easeInOut",
+        repeat: Infinity,
+      }}
     >
-      {letters.map((letter, index) => (
-        <motion.span
-          key={`${letter}-${index}`}
-          variants={letterVariants}
-          className="inline-block"
-        >
-          {/* Use non-breaking space for actual spaces */}
-          {letter === " " ? "\u00A0" : letter}
-        </motion.span>
-      ))}
+      Loading...
     </motion.h1>
   );
 };
 
 // ===================================================================
-//  NEW COMPONENT 2: FloatingDoodleIcon
-//  This wraps the original DoodleIcon to add continuous floating.
+//  COMPONENT 2: FloatingDoodleIcon (Unchanged)
+//  This component adds continuous floating to the background icons.
 // ===================================================================
 const FloatingDoodleIcon = ({
   children,
@@ -150,8 +109,8 @@ const FloatingDoodleIcon = ({
         top: top,
         left: left,
         zIndex: 10,
-        opacity: opacity, // Use the passed-in opacity
-        color: color, // Use the passed-in color
+        opacity: opacity,
+        color: color,
         width: size,
         height: size,
       }}
@@ -166,7 +125,6 @@ const FloatingDoodleIcon = ({
 
 // ===================================================================
 //  MAIN COMPONENT: WelcomeLoader
-//  Now using the new components and a lot more icons.
 // ===================================================================
 const WelcomeLoader = ({ onAnimationComplete }) => {
   const [isVisible, setIsVisible] = useState(true);
@@ -187,7 +145,7 @@ const WelcomeLoader = ({ onAnimationComplete }) => {
     };
   }, [onAnimationComplete]);
 
-  // --- Create a list of 20 random icons for the background ---
+  // --- Create a list of 20 random icons for the background (Unchanged) ---
   const backgroundIcons = Array.from({ length: 20 }).map((_, i) => {
     const iconType = getRandom([
       FileIcon,
@@ -207,24 +165,26 @@ const WelcomeLoader = ({ onAnimationComplete }) => {
       y: randomRange(-200, 200),
       rotate: randomRange(-90, 90),
       delay: randomRange(0, 2),
-      opacity: randomRange(0.1, 0.4), // Different opacities for depth
-      color: getRandom(CRAYON_BOX), // Different colors
-      size: `${randomRange(50, 120)}px`, // Different sizes
+      opacity: randomRange(0.1, 0.4),
+      color: getRandom(CRAYON_BOX),
+      size: `${randomRange(50, 120)}px`,
     };
   });
 
   return (
     <>
+      {/* --- MODIFIED: Import Montserrat Thin instead of Gochi Hand --- */}
       <style>
         {`
-          @import url('https://fonts.googleapis.com/css2?family=Gochi+Hand&display=swap');
-          .font-doodle {
-            font-family: 'Gochi Hand', cursive;
+          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap');
+          .font-montserrat-thin {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 200;
           }
         `}
       </style>
 
-      {/* Renders the hidden SVG filter */}
+      {/* Renders the hidden SVG filter (Unchanged) */}
       <SketchyFilter />
 
       <AnimatePresence>
@@ -234,7 +194,7 @@ const WelcomeLoader = ({ onAnimationComplete }) => {
             className="fixed inset-0 w-full h-full flex flex-col items-center justify-center z-[2500] overflow-hidden"
             style={{
               backgroundColor: DOODLE_BG_COLOR,
-              color: DOODLE_STROKE_COLOR, // Default "pencil" color
+              color: DOODLE_STROKE_COLOR,
             }}
             initial={{ opacity: 1 }}
             exit={{
@@ -245,7 +205,7 @@ const WelcomeLoader = ({ onAnimationComplete }) => {
               },
             }}
           >
-            {/* --- Render all 20 background icons --- */}
+            {/* --- Render all 20 background icons (Unchanged) --- */}
             {backgroundIcons.map((icon) => (
               <FloatingDoodleIcon
                 key={icon.id}
@@ -263,11 +223,26 @@ const WelcomeLoader = ({ onAnimationComplete }) => {
               </FloatingDoodleIcon>
             ))}
 
-            {/* --- Centered Loading Text --- */}
-            {/* Use the new AnimatedDoodleText component */}
-            <AnimatedDoodleText text="Loading Toolkit..." color={DOODLE_STROKE_COLOR} />
+            {/* --- MODIFIED: Centered Logo and New Text --- */}
+            <motion.div
+              className="relative z-20 flex flex-col items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 1.0, ease: "easeOut" }}
+            >
+              {/* 1. The Logo */}
+              <motion.img
+                src={logo}
+                alt="Loading Logo"
+                className="w-72 h-auto mb-6"
+              />
 
-            {/* --- Sketchy Progress Bar --- */}
+              {/* 2. The New Loading Text */}
+              <LoadingText color={DOODLE_STROKE_COLOR} />
+              
+            </motion.div>
+            
+            {/* --- Sketchy Progress Bar (Unchanged) --- */}
             <SketchyProgressBar
               duration={LOADER_VISIBLE_DURATION_MS}
               color={DOODLE_STROKE_COLOR}
