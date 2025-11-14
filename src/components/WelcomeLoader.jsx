@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "../assets/logo/favicon.png"; // <-- LOGO IMPORTED
+import logo from "../assets/logo/mini-logo-trp.png";
 import { DoodleIcon } from "./DoodleIcon";
 import { SketchyFilter } from "./SketchyFilter";
 import { SketchyProgressBar } from "./SketchyProgressBar";

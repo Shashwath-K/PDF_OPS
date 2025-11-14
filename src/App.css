@@ -341,20 +341,36 @@ html.dark .app-header {
   align-items: center;
   justify-content: space-between;
 }
-.nav-logo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--color-text-main);
-  text-decoration: none;
-  padding: 0.25rem 0;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
-.nav-logo:hover {
-  text-decoration: none;
-  color: var(--color-primary-main);
-  transform: scale(1.03);
+.nav-logo-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* 12px space between logo and text */
 }
 
+.nav-logo-link {
+  /* This holds the image */
+  display: block;
+  transition: transform 0.3s ease;
+}
+.nav-logo-link:hover {
+  transform: scale(1.1); /* Simple hover effect */
+}
+
+.nav-logo-img {
+  /* Set a specific size for the logo */
+  height: 40px; /* 40px tall */
+  width: 40px;  /* 40px wide */
+  display: block;
+}
+
+.nav-logo-text {
+  /* This is the "Placeholder Text" */
+  font-size: 1.125rem; /* 18px */
+  font-weight: 700;
+  color: var(--color-text-main);
+  /* Remove the default link underline */
+  text-decoration: none;
+}
 /* Hamburger Toggle - Mobile Only */
 .nav-toggle {
   display: none;
@@ -450,7 +466,11 @@ html.dark .nav-menu-link[aria-current="page"] {
   width: 1.25rem;
   height: 1.25rem;
 }
-
+@media (max-width: 768px) {
+.nav-logo-text {
+    display: none; /* Hide placeholder text on mobile */
+  }
+}
 /* Mobile-only menu container */
 .nav-mobile-menu {
   display: none;

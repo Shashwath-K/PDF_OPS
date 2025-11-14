@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
+import logo from "../assets/logo/mini-logo-ext.png";
 
 const Navigation = ({ toggleTheme, currentTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -10,15 +11,22 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
   };
 
   return (
-    // We add "nav-container" to this div to style it correctly
     <div className="container nav-container">
-      <NavLink 
-        to="/" 
-        className="nav-logo" 
-        onClick={handleLinkClick}
-      >
-        PDF-OPS
-      </NavLink>
+      
+      {/* 2. Replaced the old NavLink with this new logo group */}
+      <div className="nav-logo-group">
+        <NavLink 
+          to="/" 
+          className="nav-logo-link"
+          onClick={handleLinkClick}
+        >
+          <img src={logo} alt="PDF-OPS Logo" className="nav-logo-img" />
+        </NavLink>
+        {/* 3. Added the new placeholder text */}
+        <span className="nav-logo-text">
+          PDF Operations Toolkit
+        </span>
+      </div>
 
       {/* --- Desktop Menu (hidden on mobile) --- */}
       <ul className="nav-menu">

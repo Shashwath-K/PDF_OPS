@@ -12,11 +12,9 @@ const Footer = () => {
         
         {/* These classNames are the most important part */}
         <p className="footer-text">
-          &copy; {new Date().getFullYear()}{" "}
           <span className="footer-brand">
-            PDF-OPS
+            &copy; ProjectLima {new Date().getFullYear()}{" "}
           </span>
-          . All rights reserved.
         </p>
         <p className="footer-text">
           A utility tool built with React, CSS, and Framer Motion.
