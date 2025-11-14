@@ -20,11 +20,11 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
           className="nav-logo-link"
           onClick={handleLinkClick}
         >
-          <img src={logo} alt="PDF-OPS Logo" className="nav-logo-img" />
+          <img src={logo} alt="base_logo" className="nav-logo-img" />
         </NavLink>
         {/* 3. Added the new placeholder text */}
         <span className="nav-logo-text">
-          PDF Operations Toolkit
+          PDFnZIP
         </span>
       </div>
 

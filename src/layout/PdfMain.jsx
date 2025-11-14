@@ -32,13 +32,6 @@ const PdfMain = () => {
 
   return (
     <AnimatePresence mode="wait">
-      {/*
-        We MUST pass the `location` object to <Routes>
-        and use `location.pathname` as the `key`.
-
-        This tells AnimatePresence *when* the route has changed,
-        allowing it to manage the exit and enter animations.
-      */}
       <Routes location={location} key={location.pathname}>
         <Route
           path="/"
