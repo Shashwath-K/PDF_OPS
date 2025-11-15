@@ -1,5 +1,3 @@
-// src/pages/PdfCombine.jsx
-
 import React, { useState } from "react";
 import FileDropzone from "../components/FileDropzone";
 import { PDFDocument } from "pdf-lib"; // Import pdf-lib
@@ -40,49 +38,102 @@ const SpinnerIcon = () => (
   </svg>
 );
 
+// --- NEW: Cancel Icon ---
+// Uses existing "spinner-icon" class for styling, but disables animation
+const CancelIcon = () => (
+  <svg
+    className="spinner-icon"
+    style={{ animation: 'none' }} // Override spin animation
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={3} // Bolder "X"
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+// --- NEW: Download Icon ---
+// Uses existing "spinner-icon" class for styling, but disables animation
+const DownloadIcon = () => (
+  <svg
+    className="spinner-icon"
+    style={{ animation: 'none' }} // Override spin animation
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+    />
+  </svg>
+);
+
 const PdfCombine = () => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // --- NEW: State to hold the successful result ---
+  const [processedFileBlob, setProcessedFileBlob] = useState(null);
+  const [processedFileName, setProcessedFileName] = useState("");
 
   const handleCombine = async () => {
     setIsLoading(true);
     setError(null);
+    setProcessedFileBlob(null);
 
     try {
-      // Create a new, empty PDF document
       const mergedPdf = await PDFDocument.create();
 
-      // Loop through all selected files
       for (const file of files) {
-        // Read the file as an ArrayBuffer
         const fileBuffer = await file.arrayBuffer();
-        
-        // Load the PDF document from the buffer
         const pdfDoc = await PDFDocument.load(fileBuffer);
-        
-        // Get all page indices
-        const pageIndices = pdfDoc.getPageIndices();
-        
-        // Copy the pages from the loaded doc to the merged doc
-        const copiedPages = await mergedPdf.copyPages(pdfDoc, pageIndices);
+        const copiedPages = await mergedPdf.copyPages(
+          pdfDoc,
+          pdfDoc.getPageIndices()
+        );
         copiedPages.forEach((page) => mergedPdf.addPage(page));
       }
 
-      // Save the merged PDF as a Uint8Array
       const mergedPdfBytes = await mergedPdf.save();
-
-      // Create a Blob and download the file
       const blob = new Blob([mergedPdfBytes], { type: "application/pdf" });
-      downloadFile(blob, "pdf-ops-merged.pdf");
+      const fileName = "pdf-ops-merged.pdf";
+      
+      downloadFile(blob, fileName);
 
-      setFiles([]); // Clear files after successful merge
+      // --- NEW: Save the result to state ---
+      setProcessedFileBlob(blob);
+      setProcessedFileName(fileName);
+      setFiles([]); // Clear files
+      setError(null); // Clear any old errors
+
     } catch (err) {
       console.error(err);
       setError("An error occurred while merging the PDFs. Please check the files and try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // --- NEW: Handler for the "Download Again" button ---
+  const handleDownloadAgain = () => {
+    if (processedFileBlob) {
+      downloadFile(processedFileBlob, processedFileName);
+    }
+  };
+
+  // --- NEW: Handler to reset the page ---
+  const handleStartNew = () => {
+    setFiles([]);
+    setProcessedFileBlob(null);
+    setProcessedFileName("");
+    setError(null);
   };
 
   const canCombine = files.length > 1;
@@ -94,20 +145,34 @@ const PdfCombine = () => {
         <p>Merge multiple PDF files into a single document.</p>
       </div>
 
-      {/* Show error message if one exists */}
       {error && (
         <div className="alert alert-error">{error}</div>
       )}
 
-      <FileDropzone
-        onFilesChange={setFiles}
-        inputProps={{
-          accept: "application/pdf",
-          multiple: true,
-        }}
-        prompt="Drag & drop PDFs here, or click to select"
-      />
+      {/* --- NEW: Show success message instead of dropzone on success --- */}
+      {processedFileBlob ? (
+        <div className="alert alert-success">
+          Your file has been combined successfully!
+        </div>
+      ) : (
+        <FileDropzone
+          // When new files are dropped, clear any old results
+          onFilesChange={(newFiles) => {
+            setProcessedFileBlob(null);
+            setError(null);
+            setFiles(newFiles);
+          }}
+          inputProps={{
+            accept: "application/pdf",
+            multiple: true,
+          }}
+          prompt="Drag & drop PDFs here, or click to select"
+        />
+      )}
 
+      {/* --- NEW: Conditional Button Rendering --- */}
+      
+      {/* State 1: Files are selected, ready to combine */}
       {files.length > 0 && (
         <div className="page-action-buttons">
           <button
@@ -130,7 +195,28 @@ const PdfCombine = () => {
             className="btn btn-secondary btn-full-width"
             disabled={isLoading}
           >
-            Clear Files
+            <CancelIcon />
+            Cancel
+          </button>
+        </div>
+      )}
+      
+      {/* State 2: Combine is done, show Download/Start New */}
+      {processedFileBlob && !isLoading && files.length === 0 && (
+        <div className="page-action-buttons">
+          <button 
+            onClick={handleDownloadAgain} 
+            className="btn btn-primary btn-full-width"
+          >
+            <DownloadIcon />
+            Download Again
+          </button>
+          <button 
+            onClick={handleStartNew} 
+            className="btn btn-secondary btn-full-width"
+          >
+            <CancelIcon />
+            Start New
           </button>
         </div>
       )}
