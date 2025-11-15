@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
-import logo from "../assets/logo/mini-logo-ext.png";
+import logo from "../assets/logo/mini-logo-ext.png"; // Your logo path
 
 const Navigation = ({ toggleTheme, currentTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,20 +13,17 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
   return (
     <div className="container nav-container">
       
-      {/* 2. Replaced the old NavLink with this new logo group */}
-      <div className="nav-logo-group">
-        <NavLink 
-          to="/" 
-          className="nav-logo-link"
-          onClick={handleLinkClick}
-        >
-          <img src={logo} alt="base_logo" className="nav-logo-img" />
-        </NavLink>
-        {/* 3. Added the new placeholder text */}
+      {/* --- FIX 1: This is now a single NavLink --- */}
+      <NavLink 
+        to="/" 
+        className="nav-logo-group" // This class now styles the NavLink
+        onClick={handleLinkClick}
+      >
+        <img src={logo} alt="base_logo" className="nav-logo-img" />
         <span className="nav-logo-text">
           PDFnZIP
         </span>
-      </div>
+      </NavLink>
 
       {/* --- Desktop Menu (hidden on mobile) --- */}
       <ul className="nav-menu">
@@ -87,11 +84,24 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
         <span className="nav-toggle-bar bar-3"></span>
       </button>
 
-      {/* This is the slide-out menu for mobile */}
+      {/* --- This is the slide-out menu for mobile --- */}
       <div className={`nav-mobile-menu ${isMenuOpen ? "open" : ""}`}>
         <NavLink to="/" className="nav-mobile-link" onClick={handleLinkClick}>Combine</NavLink>
         <NavLink to="/compress" className="nav-mobile-link" onClick={handleLinkClick}>Compress</NavLink>
         <NavLink to="/zip" className="nav-mobile-link" onClick={handleLinkClick}>Zip Folder</NavLink>
+        
+        {/* --- FIX 2: Added the theme toggle button here --- */}
+        <button
+          onClick={toggleTheme}
+          className="theme-toggle-btn"
+          aria-label="Toggle theme"
+        >
+          {currentTheme === "light" ? (
+            <MoonIcon className="icon" />
+          ) : (
+            <SunIcon className="icon" />
+          )}
+        </button>
       </div>
     </div>
   );
