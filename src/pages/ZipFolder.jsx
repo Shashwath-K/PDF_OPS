@@ -1,5 +1,3 @@
-// src/pages/ZipFolder.jsx
-
 import React, { useState } from "react";
 import FileDropzone from "../components/FileDropzone";
 import JSZip from "jszip"; // Import jszip
@@ -39,24 +37,60 @@ const SpinnerIcon = () => (
   </svg>
 );
 
+// --- NEW: Cancel Icon ---
+const CancelIcon = () => (
+  <svg
+    className="spinner-icon"
+    style={{ animation: 'none' }} // Override spin animation
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={3}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+// --- NEW: Download Icon ---
+const DownloadIcon = () => (
+  <svg
+    className="spinner-icon"
+    style={{ animation: 'none' }} // Override spin animation
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+    />
+  </svg>
+);
+
 const ZipFolder = () => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // --- NEW: State to hold the successful result ---
+  const [processedFileBlob, setProcessedFileBlob] = useState(null);
+  const [processedFileName, setProcessedFileName] = useState("");
+
   const handleZip = async () => {
     setIsLoading(true);
     setError(null);
+    setProcessedFileBlob(null);
     
     try {
       const zip = new JSZip();
       
       for (const file of files) {
-        // Read the file as an ArrayBuffer
         const fileBuffer = await file.arrayBuffer();
-        
         // Use webkitRelativePath to preserve folder structure
-        // This is the key to zipping a "folder"
         zip.file(file.webkitRelativePath, fileBuffer);
       }
       
@@ -64,15 +98,37 @@ const ZipFolder = () => {
       
       // Try to get the root folder name for the download
       const rootFolder = files[0]?.webkitRelativePath.split('/')[0] || "folder";
-      downloadFile(zipBlob, `${rootFolder}.zip`);
+      const fileName = `${rootFolder}.zip`;
+
+      downloadFile(zipBlob, fileName);
       
-      setFiles([]);
+      // --- NEW: Save the result to state ---
+      setProcessedFileBlob(zipBlob);
+      setProcessedFileName(fileName);
+      setFiles([]); // Clear files
+      setError(null); // Clear any old errors
+
     } catch (err) {
       console.error(err);
       setError("An error occurred while zipping the folder.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // --- NEW: Handler for the "Download Again" button ---
+  const handleDownloadAgain = () => {
+    if (processedFileBlob) {
+      downloadFile(processedFileBlob, processedFileName);
+    }
+  };
+
+  // --- NEW: Handler to reset the page ---
+  const handleStartNew = () => {
+    setFiles([]);
+    setProcessedFileBlob(null);
+    setProcessedFileName("");
+    setError(null);
   };
 
   return (
@@ -86,16 +142,31 @@ const ZipFolder = () => {
         <div className="alert alert-error">{error}</div>
       )}
 
-      <FileDropzone
-        onFilesChange={setFiles}
-        inputProps={{
-          webkitdirectory: "true",
-          directory: "true",
-          multiple: true,
-        }}
-        prompt="Click to select a folder to zip"
-      />
+      {/* --- NEW: Show success message instead of dropzone on success --- */}
+      {processedFileBlob ? (
+        <div className="alert alert-success">
+          Your folder has been zipped successfully!
+        </div>
+      ) : (
+        <FileDropzone
+          // When new files are dropped, clear any old results
+          onFilesChange={(newFiles) => {
+            setProcessedFileBlob(null);
+            setError(null);
+            setFiles(newFiles);
+          }}
+          inputProps={{
+            webkitdirectory: "true",
+            directory: "true",
+            multiple: true,
+          }}
+          prompt="Click to select a folder to zip"
+        />
+      )}
 
+      {/* --- NEW: Conditional Button Rendering --- */}
+      
+      {/* State 1: Files are selected, ready to zip */}
       {files.length > 0 && (
         <div className="page-action-buttons">
           <button
@@ -116,7 +187,28 @@ const ZipFolder = () => {
             className="btn btn-secondary btn-full-width"
             disabled={isLoading}
           >
-            Clear Files
+            <CancelIcon />
+            Cancel
+          </button>
+        </div>
+      )}
+
+      {/* State 2: Zipping is done, show Download/Start New */}
+      {processedFileBlob && !isLoading && files.length === 0 && (
+        <div className="page-action-buttons">
+          <button 
+            onClick={handleDownloadAgain} 
+            className="btn btn-primary btn-full-width"
+          >
+            <DownloadIcon />
+            Download Again
+          </button>
+          <button 
+            onClick={handleStartNew} 
+            className="btn btn-secondary btn-full-width"
+          >
+            <CancelIcon />
+            Start New
           </button>
         </div>
       )}

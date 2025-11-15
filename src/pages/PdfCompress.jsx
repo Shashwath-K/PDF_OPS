@@ -39,6 +39,40 @@ const SpinnerIcon = () => (
   </svg>
 );
 
+// --- NEW: Cancel Icon ---
+const CancelIcon = () => (
+  <svg
+    className="spinner-icon"
+    style={{ animation: 'none' }} // Override spin animation
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={3}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+  </svg>
+);
+
+// --- NEW: Download Icon ---
+const DownloadIcon = () => (
+  <svg
+    className="spinner-icon"
+    style={{ animation: 'none' }} // Override spin animation
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={2}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+    />
+  </svg>
+);
+
 const PdfCompress = () => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,11 +81,14 @@ const PdfCompress = () => {
   const [useCompression, setUseCompression] = useState(true);
   const [useFlatten, setUseFlatten] = useState(false);
 
+  // --- NEW: State to hold the successful result ---
+  const [processedFileBlob, setProcessedFileBlob] = useState(null);
+  const [processedFileName, setProcessedFileName] = useState("");
+
   const processFile = async (file, options) => {
     const fileBuffer = await file.arrayBuffer();
     const pdfDoc = await PDFDocument.load(fileBuffer);
     
-    // Apply flatten if the user checked the box
     if (options.useFlatten) {
       try {
         pdfDoc.flatten();
@@ -60,7 +97,6 @@ const PdfCompress = () => {
       }
     }
     
-    // Save the PDF with the selected options
     return pdfDoc.save({ useObjectStreams: options.useCompression });
   };
 
@@ -68,20 +104,21 @@ const PdfCompress = () => {
   const handleCompress = async () => {
     setIsLoading(true);
     setError(null);
+    setProcessedFileBlob(null);
     
     const options = { useCompression, useFlatten };
+    let blob;
+    let fileName;
 
     try {
-      // --- NEW LOGIC: POINT 3 ---
       if (files.length === 1) {
         // --- Process a SINGLE file ---
         const file = files[0];
         const processedBytes = await processFile(file, options);
         
-        // Create a Blob and download the single file
-        const blob = new Blob([processedBytes], { type: "application/pdf" });
+        blob = new Blob([processedBytes], { type: "application/pdf" });
         const originalName = file.name.endsWith('.pdf') ? file.name.slice(0, -4) : file.name;
-        downloadFile(blob, `${originalName}-processed.pdf`);
+        fileName = `${originalName}-processed.pdf`;
 
       } else {
         // --- Process MULTIPLE files and zip them ---
@@ -93,20 +130,39 @@ const PdfCompress = () => {
           zip.file(`${originalName}-processed.pdf`, processedBytes);
         }
         
-        // Generate the zip file
-        const zipBlob = await zip.generateAsync({ type: "blob" });
-        
-        // Download the zip
-        downloadFile(zipBlob, "pdf-ops-compressed.zip");
+        blob = await zip.generateAsync({ type: "blob" });
+        fileName = "pdf-ops-compressed.zip";
       }
       
-      setFiles([]); // Clear files after success
+      downloadFile(blob, fileName);
+
+      // --- NEW: Save the result to state ---
+      setProcessedFileBlob(blob);
+      setProcessedFileName(fileName);
+      setFiles([]); // Clear files
+      setError(null); // Clear any old errors
+
     } catch (err) {
       console.error(err);
       setError("An error occurred during processing. One or more files may be corrupt or encrypted.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // --- NEW: Handler for the "Download Again" button ---
+  const handleDownloadAgain = () => {
+    if (processedFileBlob) {
+      downloadFile(processedFileBlob, processedFileName);
+    }
+  };
+
+  // --- NEW: Handler to reset the page ---
+  const handleStartNew = () => {
+    setFiles([]);
+    setProcessedFileBlob(null);
+    setProcessedFileName("");
+    setError(null);
   };
 
   return (
@@ -120,15 +176,28 @@ const PdfCompress = () => {
         <div className="alert alert-error">{error}</div>
       )}
 
-      <FileDropzone
-        onFilesChange={setFiles}
-        inputProps={{
-          accept: "application/pdf",
-          multiple: true,
-        }}
-        prompt="Drag & drop PDFs here, or click to select"
-      />
+      {/* --- NEW: Show success message instead of dropzone on success --- */}
+      {processedFileBlob ? (
+         <div className="alert alert-success">
+          Your file(s) have been processed successfully!
+        </div>
+      ) : (
+        <FileDropzone
+          // When new files are dropped, clear any old results
+          onFilesChange={(newFiles) => {
+            setProcessedFileBlob(null);
+            setError(null);
+            setFiles(newFiles);
+          }}
+          inputProps={{
+            accept: "application/pdf",
+            multiple: true,
+          }}
+          prompt="Drag & drop PDFs here, or click to select"
+        />
+      )}
 
+      {/* --- Options Box (Only show if files are selected) --- */}
       {files.length > 0 && (
         <div className="compress-options">
           <h3>Processing Options</h3>
@@ -165,6 +234,9 @@ const PdfCompress = () => {
         </div>
       )}
 
+      {/* --- NEW: Conditional Button Rendering --- */}
+      
+      {/* State 1: Files are selected, ready to process */}
       {files.length > 0 && (
         <div className="page-action-buttons">
           <button
@@ -185,7 +257,28 @@ const PdfCompress = () => {
             className="btn btn-secondary btn-full-width"
             disabled={isLoading}
           >
-            Clear Files
+            <CancelIcon />
+            Cancel
+          </button>
+        </div>
+      )}
+      
+      {/* State 2: Processing is done, show Download/Start New */}
+      {processedFileBlob && !isLoading && files.length === 0 && (
+        <div className="page-action-buttons">
+          <button 
+            onClick={handleDownloadAgain} 
+            className="btn btn-primary btn-full-width"
+          >
+            <DownloadIcon />
+            Download Again
+          </button>
+          <button 
+            onClick={handleStartNew} 
+            className="btn btn-secondary btn-full-width"
+          >
+            <CancelIcon />
+            Start New
           </button>
         </div>
       )}
