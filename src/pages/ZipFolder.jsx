@@ -75,8 +75,10 @@ const ZipFolder = () => {
   const [files, setFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  
+  // --- NEW: State for Zip Level ---
+  const [zipLevel, setZipLevel] = useState(6); // 6 is the default
 
-  // --- NEW: State to hold the successful result ---
   const [processedFileBlob, setProcessedFileBlob] = useState(null);
   const [processedFileName, setProcessedFileName] = useState("");
 
@@ -90,23 +92,27 @@ const ZipFolder = () => {
       
       for (const file of files) {
         const fileBuffer = await file.arrayBuffer();
-        // Use webkitRelativePath to preserve folder structure
         zip.file(file.webkitRelativePath, fileBuffer);
       }
       
-      const zipBlob = await zip.generateAsync({ type: "blob" });
+      // --- NEW: Apply zip level ---
+      const zipBlob = await zip.generateAsync({ 
+        type: "blob",
+        compression: "DEFLATE",
+        compressionOptions: {
+          level: parseInt(zipLevel) // Pass the state variable
+        }
+      });
       
-      // Try to get the root folder name for the download
       const rootFolder = files[0]?.webkitRelativePath.split('/')[0] || "folder";
       const fileName = `${rootFolder}.zip`;
 
       downloadFile(zipBlob, fileName);
       
-      // --- NEW: Save the result to state ---
       setProcessedFileBlob(zipBlob);
       setProcessedFileName(fileName);
-      setFiles([]); // Clear files
-      setError(null); // Clear any old errors
+      setFiles([]); 
+      setError(null); 
 
     } catch (err) {
       console.error(err);
@@ -116,14 +122,12 @@ const ZipFolder = () => {
     }
   };
 
-  // --- NEW: Handler for the "Download Again" button ---
   const handleDownloadAgain = () => {
     if (processedFileBlob) {
       downloadFile(processedFileBlob, processedFileName);
     }
   };
 
-  // --- NEW: Handler to reset the page ---
   const handleStartNew = () => {
     setFiles([]);
     setProcessedFileBlob(null);
@@ -138,18 +142,14 @@ const ZipFolder = () => {
         <p>Select a folder to compress all its contents into a .zip file.</p>
       </div>
 
-      {error && (
-        <div className="alert alert-error">{error}</div>
-      )}
+      {error && (<div className="alert alert-error">{error}</div>)}
 
-      {/* --- NEW: Show success message instead of dropzone on success --- */}
       {processedFileBlob ? (
         <div className="alert alert-success">
           Your folder has been zipped successfully!
         </div>
       ) : (
         <FileDropzone
-          // When new files are dropped, clear any old results
           onFilesChange={(newFiles) => {
             setProcessedFileBlob(null);
             setError(null);
@@ -164,51 +164,47 @@ const ZipFolder = () => {
         />
       )}
 
-      {/* --- NEW: Conditional Button Rendering --- */}
-      
-      {/* State 1: Files are selected, ready to zip */}
+      {/* --- NEW: Zip Compression Level (always show if files > 0) --- */}
       {files.length > 0 && (
-        <div className="page-action-buttons">
-          <button
-            onClick={handleZip}
-            className="btn btn-primary btn-full-width"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <>
-                <SpinnerIcon /> Zipping...
-              </>
-            ) : (
-              `Create Zip (${files.length} files)`
-            )}
-          </button>
-          <button
-            onClick={() => setFiles([])}
-            className="btn btn-secondary btn-full-width"
-            disabled={isLoading}
-          >
-            <CancelIcon />
-            Cancel
-          </button>
+        <div className="compress-options">
+          <div className="form-group">
+            <label className="form-label" htmlFor="zip-level">
+              Zip Compression Level
+            </label>
+            <select 
+              id="zip-level"
+              className="form-select"
+              value={zipLevel}
+              onChange={e => setZipLevel(e.target.value)}
+              disabled={isLoading}
+            >
+              <option value={0}>Min (Store only, fastest)</option>
+              <option value={6}>Normal (Default, recommended)</option>
+              <option value={9}>Max (Best compression, slowest)</option>
+            </select>
+          </div>
         </div>
       )}
 
-      {/* State 2: Zipping is done, show Download/Start New */}
+      {/* --- (Button logic remains the same) --- */}
+      {files.length > 0 && (
+        <div className="page-action-buttons">
+          <button onClick={handleZip} className="btn btn-primary btn-full-width" disabled={isLoading}>
+            {isLoading ? (<><SpinnerIcon /> Zipping...</>) : (`Create Zip (${files.length} files)`)}
+          </button>
+          <button onClick={() => setFiles([])} className="btn btn-secondary btn-full-width" disabled={isLoading}>
+            <CancelIcon /> Cancel
+          </button>
+        </div>
+      )}
+      
       {processedFileBlob && !isLoading && files.length === 0 && (
         <div className="page-action-buttons">
-          <button 
-            onClick={handleDownloadAgain} 
-            className="btn btn-primary btn-full-width"
-          >
-            <DownloadIcon />
-            Download Again
+          <button onClick={handleDownloadAgain} className="btn btn-primary btn-full-width">
+            <DownloadIcon /> Download Again
           </button>
-          <button 
-            onClick={handleStartNew} 
-            className="btn btn-secondary btn-full-width"
-          >
-            <CancelIcon />
-            Start New
+          <button onClick={handleStartNew} className="btn btn-secondary btn-full-width">
+            <CancelIcon /> Start New
           </button>
         </div>
       )}
