@@ -684,7 +684,7 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
   width: 100%;
   padding: 2rem;
   border: 3px dashed var(--color-border);
-  border-radius: 1rem;
+  border-radius: 1.3rem;
   background-color: var(--color-bg-hover);
   cursor: pointer;
   transition: all 0.3s ease;
