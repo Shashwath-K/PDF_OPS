@@ -1,9 +1,15 @@
 /* =================================================================== */
-/* APP.CSS - PDF-OPS (v2.0 - Complex & Responsive)
+/* APP.CSS - PDF-OPS (v2.1 - Fluid & Complex Overhaul)
 /*
-/* This is the complete, final, and de-duplicated stylesheet.
-/* It uses CSS variables for theming and a flexbox-based
-/* layout to ensure all content is properly centered.
+/* This stylesheet has been overhauled for maximum fluidity and
+/* responsiveness.
+/*
+/* Key Enhancements:
+/* 1. CSS variables for all spacing (fluid) and layout (e.g., header height).
+/* 2. "Magic number" removal (e.g., mobile nav is now tied to a variable).
+/* 3. CSS Grid introduced for complex form layouts (Section 11).
+/* 4. Container Queries introduced (Section 5 & 11.5) for true
+/* component-level responsiveness within the main content card.
 /* =================================================================== */
 
 /* ================================================== */
@@ -13,6 +19,20 @@
   /* -- Font Family -- */
   --font-sans: "Montserrat", "Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   --font-mono: "Fira Mono", Monaco, Consolas, "Liberation Mono", monospace;
+
+  /* -- Layout Variables (NEW) -- */
+  /* Replaces "magic numbers" for layout calculations */
+  --header-height-desktop: 70px;
+  --header-height-mobile: 65px;
+
+  /* -- Fluid Spacing Variables (NEW) -- */
+  /* Uses clamp() to create spacing that scales with the viewport. */
+  --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);   /* 4px -> 8px */
+  --space-sm: clamp(0.5rem, 1vw, 0.75rem);     /* 8px -> 12px */
+  --space-md: clamp(1rem, 2vw, 1.5rem);      /* 16px -> 24px */
+  --space-lg: clamp(1.5rem, 3vw, 2.5rem);      /* 24px -> 40px */
+  --space-xl: clamp(2rem, 5vw, 4rem);        /* 32px -> 64px */
+  --space-xxl: clamp(3rem, 7vw, 6rem);       /* 48px -> 96px */
 
   /* -- Light Theme (Default) -- */
   --color-primary-light: #3b82f6; /* blue-500 */
@@ -118,7 +138,6 @@ html.dark {
   to { opacity: 1; transform: scale(1); }
 }
 
-
 /* ============================================= */
 /* 3. RESET & GLOBALS                            */
 /* ============================================= */
@@ -140,6 +159,8 @@ html {
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
   transition: background-color 0.3s ease, color 0.3s ease;
+  /* (NEW) Prevents pull-to-refresh and overscroll glow */
+  overscroll-behavior: none; 
 }
 
 body {
@@ -147,7 +168,7 @@ body {
   background-size: 400% 400%;
   color: var(--color-text-body);
   min-height: 100vh;
-  display: flex; /* This is key for the sticky footer */
+  display: flex; /* Key for sticky footer */
   flex-direction: column;
   animation: gradient-pan 20s ease infinite;
 }
@@ -160,6 +181,7 @@ html.dark body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  flex-grow: 1; /* (NEW) Ensures root takes full height */
 }
 
 button,
@@ -180,6 +202,14 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--color-primary-main);
+  box-shadow: var(--shadow-focus);
+}
+/* (NEW) Add consistency for focus-visible */
+a:focus-visible {
+  outline: 2px solid var(--color-primary-main);
+  box-shadow: var(--shadow-focus);
+  border-radius: var(--space-xs);
+  text-decoration: none;
 }
 
 a {
@@ -187,20 +217,20 @@ a {
   color: var(--color-primary-main);
   transition: color 0.3s ease;
 }
-a:hover,
-a:focus-visible {
+a:hover {
   color: var(--color-primary-dark);
   text-decoration: underline;
-  outline: none;
 }
 
 ul, ol {
-  padding-left: 1.5rem;
-  margin: 1rem 0;
+  padding-left: var(--space-md);
+  margin-top: var(--space-sm);
+  margin-bottom: var(--space-sm);
 }
 img, svg, video {
   max-width: 100%;
   height: auto;
+  display: block; /* (NEW) Removes bottom spacing */
 }
 
 /* ================================================== */
@@ -209,11 +239,12 @@ img, svg, video {
 h1, h2, h3, h4, h5, h6 {
   color: var(--color-text-main);
   font-weight: 800;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-sm);
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
+/* Fluid typography is great, no changes needed */
 h1 { font-size: clamp(2rem, 5vw, 3rem); }
 h2 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
 h3 { font-size: clamp(1.5rem, 3.5vw, 2rem); }
@@ -225,7 +256,8 @@ p {
   font-weight: 400;
   font-size: 1rem;
   color: var(--color-text-body);
-  margin-bottom: 1.25rem;
+  /* (NEW) Use fluid spacing */
+  margin-bottom: var(--space-md);
   max-width: 70ch; /* Optimal line length */
 }
 p:last-child {
@@ -253,17 +285,23 @@ code {
 /* ================================================== */
 .container {
   width: 100%;
-  max-width: 56rem; /* 896px */
+  max-width: 80rem; /* 1280px (NEW) Wider container for header */
   margin-left: auto;
   margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  /* (NEW) Use fluid padding */
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
 }
 
 /* Full-width header (frosted) */
 .app-header {
   width: 100%;
-  padding: 0.75rem 0;
+  /* (NEW) Use variable for height and flex to center content */
+  min-height: var(--header-height-desktop);
+  display: flex;
+  align-items: center;
+  /* (OLD) padding: 0.75rem 0; */
+  
   position: sticky;
   top: 0;
   z-index: 50;
@@ -272,7 +310,7 @@ code {
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
   box-shadow: var(--shadow-sm);
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: background-color 0.3s ease, border-color 0.3s ease, min-height 0.3s ease;
 }
 html.dark .app-header {
   background-color: rgba(15, 23, 42, 0.7); /* Dark mode glass (slate-900) */
@@ -280,53 +318,82 @@ html.dark .app-header {
 
 .app-main {
   flex-grow: 1; /* Pushes footer down */
-  display: flex; /* Enables vertical centering */
+  display: flex; /* Use flex to center card */
   flex-direction: column;
   width: 100%;
-  padding: 2rem 1.5rem; /* Spacing for the card */
+  /* (NEW) Use fluid padding */
+  padding: var(--space-xl) var(--space-md);
 }
 
 /* Main animated content card */
 .content-card {
   width: 100%;
   max-width: 105rem; 
-  max-height: 80vh;
+  max-height: 85vh; /* (NEW) Increased max-height slightly */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* This centers content vertically when it's small */
 
-  /* --- END FIX --- */
+  /* (USER FIX) This centers content vertically when it's small */
+  /* This is useful if the content is smaller than the card's min-height */
+  justify-content: center; 
 
-  padding: 2rem;
+  /* (NEW) Use fluid padding */
+  padding: var(--space-xl);
   text-align: center;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 1.5rem; /* 24px */
   box-shadow: var(--shadow-xl);
   animation: fadeInUp 0.8s ease forwards;
-  transition: background-color 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
   overflow-y: auto;
-  margin: auto; 
+  margin: auto; /* This centers the card horizontally/vertically in flex container */
+
+  /* (NEW) DEFINE AS A CONTAINER */
+  /* This enables Container Queries. See Section 11.5 */
+  container-type: inline-size;
+  container-name: content-card;
+}
+
+@media (max-width: 768px) {
+  .app-header {
+    /* (NEW) Use mobile header height variable */
+    min-height: var(--header-height-mobile);
+  }
+  .app-main { 
+    /* (NEW) Use fluid padding */
+    padding: var(--space-lg) var(--space-sm);
+  }
+  .content-card { 
+    /* (NEW) Use fluid padding */
+    padding: var(--space-lg); 
+    max-height: 85vh;
+  }
 }
 
 @media (max-width: 640px) {
-  .app-main { padding: 1rem; }
-  .content-card { 
-    padding: 1.5rem; 
-    text-align: center;
-    max-height: 85vh; /* Give a bit more room on mobile */
+  .app-main { 
+    padding: var(--space-md) var(--space-sm); 
+  }
+  .content-card {
+    padding: var(--space-md);
+    max-height: 90vh; /* Give more room on small phone screens */
+    /* (NEW) Remove border on mobile for a cleaner, full-bleed look */
+    border: none;
+    border-radius: 1rem; /* Slightly smaller radius */
   }
 }
 
 /* Full-width footer */
 .app-footer {
   width: 100%;
-  padding: 2.2rem 0;
+  /* (NEW) Use fluid padding */
+  padding: var(--space-lg) var(--space-md);
   font-size: 0.875rem;
   text-align: center; 
   color: var(--color-text-muted);
   border-top: 1px solid var(--color-border);
-  margin-top: auto;
+  margin-top: auto; /* Sticky footer magic */
   background-color: var(--color-bg-card);
   box-shadow: var(--shadow-sm);
   transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -336,7 +403,7 @@ html.dark .app-header {
   color: var(--color-text-muted);
   line-height: 1.6;
   max-width: none; 
-  margin: 0.25rem 0; 
+  margin: var(--space-xs) 0; 
   text-align: center;
 }
 .footer-brand {
@@ -355,14 +422,14 @@ html.dark .app-header {
 .nav-logo-group {
   display: flex;
   align-items: center;
-  gap: 0.75rem; /* 12px space between logo and text */
-  text-decoration: none; /* <-- ADD THIS */
+  gap: 0.75rem; 
+  text-decoration: none;
 }
 .nav-logo-group:hover {
-  text-decoration: none; /* <-- ADD THIS */
+  text-decoration: none; 
 }
 .nav-logo-group:hover .nav-logo-text {
-  color: var(--color-primary-main); /* <-- ADD THIS HOVER EFFECT */
+  color: var(--color-primary-main); 
 }
 
 .nav-logo-link {
@@ -382,9 +449,9 @@ html.dark .app-header {
 .nav-logo-text {
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--color-text-main); /* <-- This overrides default link color */
+  color: var(--color-text-main);
   text-decoration: none;
-  transition: color 0.3s ease; /* <-- ADD THIS */
+  transition: color 0.3s ease;
 }
 /* Hamburger Toggle - Mobile Only */
 .nav-toggle {
@@ -394,12 +461,20 @@ html.dark .app-header {
   border: none;
   padding: 0.5rem;
   z-index: 1001; /* Ensures it's above the menu content */
+  /* (NEW) Make tap target larger */
+  --tap-size: 44px;
+  width: var(--tap-size);
+  height: var(--tap-size);
+  display: none; /* Re-hide, will be shown in @media */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .nav-toggle-bar {
   display: block;
   width: 25px;
   height: 3px;
-  margin: 5px 0;
+  margin: 4px 0; /* (NEW) Slightly more spacing */
   background-color: var(--color-text-main);
   border-radius: 2px;
   transition: all 0.3s ease-in-out;
@@ -441,6 +516,8 @@ html.dark .app-header {
   text-decoration: none;
   outline: none;
   transform: translateY(-2px);
+  /* (NEW) Don't show box-shadow on focus-visible if :hover is also active */
+  box-shadow: none; 
 }
 .nav-menu-link.active,
 .nav-menu-link[aria-current="page"] {
@@ -476,13 +553,14 @@ html.dark .nav-menu-link[aria-current="page"] {
   background-color: var(--color-bg-hover);
   outline: none;
   transform: scale(1.1) rotate(15deg);
+  box-shadow: none; /* (NEW) Override default focus-visible shadow */
 }
 .theme-toggle-btn .icon {
   width: 1.25rem;
   height: 1.25rem;
 }
 @media (max-width: 768px) {
-.nav-logo-text {
+  .nav-logo-text {
     display: none; /* Hide placeholder text on mobile */
   }
 }
@@ -496,7 +574,8 @@ html.dark .nav-menu-link[aria-current="page"] {
 /* ================================================== */
 @media (max-width: 768px) {
   .nav-toggle {
-    display: block;
+    /* (NEW) Use flex instead of block for centering bars */
+    display: flex;
   }
   
   /* Hide desktop menu on mobile */
@@ -510,26 +589,24 @@ html.dark .nav-menu-link[aria-current="page"] {
     flex-direction: column;
     align-items: center;
     
-    /* --- THIS IS THE FIX --- */
-    /* Change 'center' to 'flex-start' to align items to the top */
+    /* (USER FIX - ENHANCED) */
+    /* Align items to the top, not center */
     justify-content: flex-start;
-    /* Add padding to give them space from the top */
-    padding-top: 3.5rem;
-    /* --- END FIX --- */
+    /* (NEW) Use fluid padding from top */
+    padding-top: var(--space-xl);
     
-    gap: 2.5rem; 
+    /* (NEW) Use fluid gap */
+    gap: var(--space-lg); 
     position: fixed;
     
-    /* NOTE: This assumes your header is 65px tall. 
-      If your .app-header has a different height, change '65px' to match.
-    */
-    top: 65px; 
+    /* (NEW) Use variable for top position */
+    top: var(--header-height-mobile); 
     
     left: 0;
     width: 100%;
     
-    /* Make height fill *remaining* screen */
-    height: calc(100vh - 65px); 
+    /* (NEW) Use variable for height */
+    height: calc(100vh - var(--header-height-mobile)); 
     
     background-color: var(--color-bg-card);
     backdrop-filter: blur(10px);
@@ -541,6 +618,9 @@ html.dark .nav-menu-link[aria-current="page"] {
     transform: translateY(-100%);
     transition: all 0.3s ease-in-out;
     pointer-events: none;
+    
+    /* (NEW) Add scroll for short screens */
+    overflow-y: auto;
   }
   
   .nav-mobile-menu.open {
@@ -549,22 +629,42 @@ html.dark .nav-menu-link[aria-current="page"] {
     pointer-events: auto;
   }
 
-  /* Mobile Menu Links (Removed duplicate) */
+  /* Mobile Menu Links */
   .nav-mobile-link {
     font-size: 1.75rem;
     font-weight: 700;
     color: var(--color-text-main);
     text-decoration: none;
+    /* (NEW) Add animation */
+    opacity: 0;
+    transform: translateY(-10px);
   }
-  .nav-mobile-link:hover {
+  .nav-mobile-link:hover,
+  .nav-mobile-link:focus-visible {
     color: var(--color-primary-main);
+    background-color: transparent; /* (NEW) No bg on mobile */
+    transform: none; /* (NEW) No transform on mobile */
   }
+
+  /* (NEW) Staggered fade-in animation for mobile links */
+  .nav-mobile-menu.open .nav-mobile-link,
+  .nav-mobile-menu.open .theme-toggle-btn {
+    animation: fadeInUp 0.3s ease forwards;
+  }
+  .nav-mobile-menu.open .nav-mobile-link:nth-child(1) { animation-delay: 0.1s; }
+  .nav-mobile-menu.open .nav-mobile-link:nth-child(2) { animation-delay: 0.15s; }
+  .nav-mobile-menu.open .nav-mobile-link:nth-child(3) { animation-delay: 0.2s; }
+  .nav-mobile-menu.open .nav-mobile-link:nth-child(4) { animation-delay: 0.25s; }
   
   /* Mobile Theme Toggle */
   .theme-toggle-btn {
     width: 50px;
     height: 50px;
     margin-left: 0; /* Remove desktop margin */
+    /* (NEW) Add animation */
+    opacity: 0;
+    transform: translateY(-10px);
+    animation-delay: 0.3s; /* Last item to animate */
   }
   .theme-toggle-btn:hover,
   .theme-toggle-btn:focus-visible {
@@ -583,7 +683,8 @@ html.dark .nav-menu-link[aria-current="page"] {
   cursor: pointer;
   user-select: none;
   border-radius: 0.75rem;
-  padding: 0.75rem 1.5rem;
+  /* (NEW) Use fluid padding */
+  padding: var(--space-sm) var(--space-md);
   font-size: 1rem;
   font-weight: 600;
   box-shadow: var(--shadow-md);
@@ -606,6 +707,11 @@ html.dark .nav-menu-link[aria-current="page"] {
   transform: translateY(0);
   box-shadow: var(--shadow-sm);
 }
+.btn:focus-visible {
+  outline: none; /* (NEW) Use shadow for focus */
+  box-shadow: var(--shadow-focus), var(--shadow-md);
+}
+
 .btn:disabled,
 .btn[disabled] {
   cursor: not-allowed;
@@ -628,6 +734,9 @@ html.dark .nav-menu-link[aria-current="page"] {
   transform: translateY(0);
   box-shadow: none;
 }
+.btn-secondary:focus-visible {
+  box-shadow: var(--shadow-focus); /* (NEW) Add focus shadow */
+}
 
 .btn-success { background-color: var(--color-success); }
 .btn-success:hover:not(:disabled) { background-color: #15803d; }
@@ -641,12 +750,20 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
 .btn-pulse-glow { animation: pulsing-glow 2s infinite; }
 
 /* Button Sizes & Layout */
-.btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
-.btn-lg { padding: 1rem 2rem; font-size: 1.125rem; }
+.btn-sm { 
+  /* (NEW) Use fluid padding */
+  padding: var(--space-xs) var(--space-sm); 
+  font-size: 0.875rem; 
+}
+.btn-lg { 
+  /* (NEW) Use fluid padding */
+  padding: var(--space-md) var(--space-lg);
+  font-size: 1.125rem; 
+}
 .btn-full-width {
   width: 100%;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: var(--space-sm); /* (NEW) Fluid */
+  padding-bottom: var(--space-sm); /* (NEW) Fluid */
   font-size: 1.125rem;
 }
 .btn > svg {
@@ -661,14 +778,16 @@ html.dark .btn-danger:hover:not(:disabled) { background-color: #b91c1c; }
 /* ================================================== */
 
 .form-group {
-  margin-bottom: 1.5rem;
+  /* (NEW) Use fluid margin */
+  margin-bottom: var(--space-md);
 }
 .form-select {
   display: block;
   width: 100%;
   border-radius: 0.75rem;
   font-size: 1rem;
-  padding: 0.75rem 1rem;
+  /* (NEW) Use fluid padding */
+  padding: var(--space-sm) var(--space-md);
   border: 2px solid var(--color-border);
   background: var(--color-bg-input);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
@@ -696,14 +815,15 @@ html.dark .form-select {
   display: block;
   font-weight: 600;
   color: var(--color-text-main);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-sm); /* (NEW) Fluid */
 }
 .form-input {
   display: block;
   width: 100%;
   border-radius: 0.75rem;
   font-size: 1rem;
-  padding: 0.75rem 1rem;
+  /* (NEW) Use fluid padding */
+  padding: var(--space-sm) var(--space-md);
   border: 2px solid var(--color-border);
   background: var(--color-bg-input);
   transition: border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
@@ -731,7 +851,8 @@ html.dark .form-select {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 2rem;
+  /* (NEW) Use fluid padding */
+  padding: var(--space-xl);
   border: 3px dashed var(--color-border);
   border-radius: 1.3rem;
   background-color: var(--color-bg-hover);
@@ -754,7 +875,7 @@ html.dark .form-select {
   width: 2.5rem;
   height: 2.5rem;
   color: var(--color-primary-main);
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md); /* (NEW) Fluid */
   transition: all 0.3s ease;
 }
 
@@ -778,14 +899,14 @@ html.dark .form-select {
 
 /* File List Styles */
 .file-list-container {
-  margin-top: 2rem;
+  margin-top: var(--space-lg); /* (NEW) Fluid */
   width: 100%;
 }
 .file-list-header-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: var(--space-sm); /* (NEW) Fluid */
 }
 .file-list-header {
   font-size: 1.25rem;
@@ -800,29 +921,29 @@ html.dark .form-select {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.25rem;
+  padding: var(--space-xs); /* (NEW) Fluid */
 }
 .file-list-clear-btn:hover {
   text-decoration: underline;
 }
 
 .file-list {
-  margin-top: 1rem;
+  margin-top: var(--space-md); /* (NEW) Fluid */
   list-style: none;
   padding: 0;
   max-height: 300px;
   overflow-y: auto;
-  padding-right: 0.5rem; /* For scrollbar spacing */
+  padding-right: var(--space-xs); /* For scrollbar spacing */
 }
 .file-list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
+  padding: var(--space-sm) var(--space-md); /* (NEW) Fluid */
   background-color: var(--color-bg-hover);
   border: 1px solid var(--color-border);
   border-radius: 0.75rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-sm); /* (NEW) Fluid */
   box-shadow: var(--shadow-xs);
   transition: all 0.2s ease;
 }
@@ -855,13 +976,13 @@ html.dark .form-select {
   border: none;
   color: var(--color-text-muted);
   border-radius: 50%;
-  padding: 0.25rem;
+  padding: var(--space-xs); /* (NEW) Fluid */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
-  margin-left: 0.5rem;
+  margin-left: var(--space-sm); /* (NEW) Fluid */
 }
 .file-list-item-remove-btn .icon {
   width: 1rem;
@@ -872,6 +993,19 @@ html.dark .form-select {
   background-color: var(--color-bg-hover);
 }
 
+@media (max-width: 640px) {
+  .file-dropzone {
+    padding: var(--space-lg);
+  }
+  .file-dropzone-prompt {
+    font-size: 1rem;
+  }
+  .file-list-item-name {
+    /* (NEW) Allow name to be smaller to prevent awkward wrapping */
+    font-size: 0.8125rem; 
+  }
+}
+
 /* ================================================== */
 /* 11. PAGE-SPECIFIC LAYOUTS (CENTERED & MIDDLED)     */
 /* ================================================== */
@@ -879,7 +1013,7 @@ html.dark .form-select {
   display: flex;
   flex-direction: column;
   align-items: center; 
-  gap: 2.5rem; 
+  gap: var(--space-lg); /* (NEW) Fluid */
 }
 .page-container > * {
   width: 100%;
@@ -887,7 +1021,7 @@ html.dark .form-select {
 }
 
 .page-header h2 {
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-sm); /* (NEW) Fluid */
   font-size: 2.25rem; 
 }
 .page-header p {
@@ -897,19 +1031,22 @@ html.dark .form-select {
 }
 
 .page-action-button-wrapper {
-  margin-top: 1rem;
+  margin-top: var(--space-sm); /* (NEW) Fluid */
 }
 
 .page-action-buttons {
-  margin-top: 1rem;
+  margin-top: var(--space-md); /* (NEW) Fluid */
   display: flex;
-  flex-direction: column;
-  gap: 0.75rem; /* Space between buttons */
+  /* (NEW) Default to row for desktop-first */
+  flex-direction: row;
+  flex-wrap: wrap; /* Allow wrapping */
+  justify-content: center;
+  gap: var(--space-md); /* (NEW) Fluid */
 }
 
 .compress-options {
-  margin-top: 1.5rem;
-  padding: 1.5rem;
+  margin-top: var(--space-lg); /* (NEW) Fluid */
+  padding: var(--space-lg); /* (NEW) Fluid */
   border: 2px solid var(--color-border);
   border-radius: 1rem;
   background-color: var(--color-bg-hover);
@@ -917,20 +1054,29 @@ html.dark .form-select {
 }
 .compress-options h3 {
   margin-top: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-md); /* (NEW) Fluid */
   text-align: center; /* Center the options title */
 }
 
+/* (NEW) OVERHAULED CHECKBOX GROUP WITH CSS GRID */
 .form-check-group {
-  margin-bottom: 1rem;
+  display: grid;
+  /* (NEW) Col 1 = checkbox, Col 2 = text */
+  grid-template-columns: min-content 1fr;
+  /* (NEW) Align checkbox with first line of text */
+  align-items: center;
+  gap: 0 var(--space-sm); /* (NEW) Fluid gap */
+  margin-bottom: var(--space-md); /* (NEW) Fluid */
 }
 .form-check-group:last-child {
   margin-bottom: 0;
 }
 
 .form-check-label {
-  display: flex;
-  align-items: center;
+  /* (NEW) Place in grid */
+  grid-column: 2;
+  /* (NEW) Remove old flex styles */
+  display: block; 
   font-size: 1.125rem;
   font-weight: 600;
   color: var(--color-text-main);
@@ -938,9 +1084,16 @@ html.dark .form-select {
 }
 
 .form-check-label input[type="checkbox"] {
+  /* (NEW) Place in grid */
+  grid-column: 1;
+  /* (NEW) Span both label and help text rows */
+  grid-row: 1 / span 2;
+  align-self: start; /* (NEW) Align to top */
+  margin-top: 0.25em; /* (NEW) Fine-tune alignment */
+  
   width: 1.25em;
   height: 1.25em;
-  margin-right: 0.75em;
+  margin-right: 0; /* (NEW) Grid handles spacing */
   accent-color: var(--color-primary-main);
   cursor: pointer;
 }
@@ -950,18 +1103,60 @@ html.dark .form-select {
 }
 
 .form-check-help {
+  /* (NEW) Place in grid */
+  grid-column: 2;
   font-size: 0.875rem;
   color: var(--color-text-muted);
-  margin-left: 2em; /* Align with text, not checkbox */
-  margin-top: 0.25rem;
-  margin-bottom: 0;
-}/* ================================================== */
+  /* (NEW) Remove all margins, grid handles it */
+  margin: 0;
+  margin-top: var(--space-xs);
+}
+
+/* ================================================== */
+/* 11.5. CONTAINER QUERIES (NEW)                      */
+/* ================================================== */
+/*
+ * These rules apply based on the *width of the container* * they are in, (e.g., .content-card), not the whole browser viewport.
+ * We defined .content-card as a container in Section 5.
+*/
+
+/* When the card itself is narrow (e.g., mobile or
+   in a narrow desktop window), stack the page buttons.
+*/
+@container content-card (max-width: 600px) {
+  .page-action-buttons {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  .btn-full-width {
+    /* (NEW) Ensure full-width buttons don't get *too* huge */
+    font-size: 1rem;
+  }
+  .page-header h2 {
+    font-size: 1.75rem;
+  }
+  .page-header p {
+    font-size: 1rem;
+  }
+  .compress-options {
+    padding: var(--space-md);
+  }
+  .compress-options h3 {
+    font-size: 1.25rem;
+  }
+  .form-check-label {
+    font-size: 1rem;
+  }
+}
+
+
+/* ================================================== */
 /* 12. ALERTS & MESSAGES                             */
 /* ================================================== */
 .alert {
   max-width: 36rem;
-  margin: 1rem auto;
-  padding: 1rem 1.5rem;
+  margin: var(--space-md) auto; /* (NEW) Fluid */
+  padding: var(--space-md) var(--space-lg); /* (NEW) Fluid */
   border-radius: 0.75rem;
   font-weight: 600;
   text-align: center;
@@ -1048,11 +1243,11 @@ html.dark .alert-success {
 }
 .skeleton-loader.text {
   height: 1em;
-  margin-bottom: 0.5em;
+  margin-bottom: var(--space-sm); /* (NEW) Fluid */
 }
 .skeleton-loader.title {
   height: 1.5em;
-  margin-bottom: 0.75em;
+  margin-bottom: var(--space-md); /* (NEW) Fluid */
   width: 75%;
 }
 .skeleton-loader.card {
@@ -1070,14 +1265,14 @@ html.dark .alert-success {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: var(--space-md); /* (NEW) Fluid */
   animation: modal-fade-in 0.3s ease forwards;
 }
 .modal-content {
   background-color: var(--color-bg-card);
   border-radius: 1rem;
   box-shadow: var(--shadow-xl);
-  padding: 2rem;
+  padding: var(--space-lg); /* (NEW) Fluid */
   width: 100%;
   max-width: 32rem; /* 512px */
   animation: modal-zoom-in 0.3s ease forwards;
@@ -1085,33 +1280,35 @@ html.dark .alert-success {
 }
 .modal-close-btn {
   position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+  top: var(--space-sm); /* (NEW) Fluid */
+  right: var(--space-sm); /* (NEW) Fluid */
   background: none;
   border: none;
   color: var(--color-text-muted);
   border-radius: 50%;
-  padding: 0.5rem;
+  padding: var(--space-sm); /* (NEW) Fluid */
   cursor: pointer;
   display: flex;
 }
-.modal-close-btn:hover {
+.modal-close-btn:hover,
+.modal-close-btn:focus-visible {
   color: var(--color-text-main);
   background-color: var(--color-bg-hover);
+  outline: none; /* (NEW) Custom focus */
 }
 .modal-header {
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-md); /* (NEW) Fluid */
 }
 .modal-header h3 {
   margin: 0;
 }
 .modal-body {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-lg); /* (NEW) Fluid */
 }
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.75rem;
+  gap: var(--space-sm); /* (NEW) Fluid */
 }
 
 /* ================================================== */
@@ -1143,19 +1340,28 @@ html.dark .alert-success {
   border-width: 0;
 }
 
-/* Spacing Utilities */
+/* Spacing Utilities (NEW: Added fluid versions) */
+.mt-fluid-sm { margin-top: var(--space-sm); }
+.mt-fluid-md { margin-top: var(--space-md); }
+.mt-fluid-lg { margin-top: var(--space-lg); }
+.mb-fluid-sm { margin-bottom: var(--space-sm); }
+.mb-fluid-md { margin-bottom: var(--space-md); }
+.mb-fluid-lg { margin-bottom: var(--space-lg); }
+.p-fluid-sm { padding: var(--space-sm); }
+.p-fluid-md { padding: var(--space-md); }
+.p-fluid-lg { padding: var(--space-lg); }
+
+/* (OLD) Static Spacing Utilities */
 .mt-1 { margin-top: 0.25rem; }
 .mt-2 { margin-top: 0.5rem; }
 .mt-4 { margin-top: 1rem; }
 .mt-6 { margin-top: 1.5rem; }
 .mt-8 { margin-top: 2rem; }
-
 .mb-1 { margin-bottom: 0.25rem; }
 .mb-2 { margin-bottom: 0.5rem; }
 .mb-4 { margin-bottom: 1rem; }
 .mb-6 { margin-bottom: 1.5rem; }
 .mb-8 { margin-bottom: 2rem; }
-
 .p-1 { padding: 0.25rem; }
 .p-2 { padding: 0.5rem; }
 .p-4 { padding: 1rem; }
