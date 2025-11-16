@@ -1,64 +1,44 @@
+// src/layout/PdfMain.jsx (or src/pages/PdfMain.jsx)
+
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { Link } from "react-router-dom";
+// Using the same icons from your WelcomeLoader
+import { DocumentIcon, FileIcon, ZipIcon } from "../components/DoodleIcons";
 
-// --- Import your pages ---
-import PdfCombine from "../pages/PdfCombine";
-import PdfCompress from "../pages/PdfCompress";
-import ZipFolder from "../pages/ZipFolder";
-
-/**
- * A reusable wrapper component to apply a uniform
- * fade-in/fade-out animation to every page as it changes.
- */
-const PageWrapper = ({ children }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 15 }}    // Start invisible and slightly down
-    animate={{ opacity: 1, y: 0 }}    // Fade in to full opacity at final position
-    exit={{ opacity: 0, y: -15 }}     // Fade out and move slightly up
-    transition={{ duration: 0.25, ease: "easeInOut" }}
-  >
-    {children}
-  </motion.div>
-);
-
-/**
- * This component controls all routing and page transitions.
- * 'AnimatePresence' handles the enter/exit animations.
- * 'mode="wait"' ensures the old page animates out before the new one animates in.
- */
 const PdfMain = () => {
-  const location = useLocation();
-
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route
-          path="/"
-          element={
-            <PageWrapper>
-              <PdfCombine />
-            </PageWrapper>
-          }
-        />
-        <Route
-          path="/compress"
-          element={
-            <PageWrapper>
-              <PdfCompress />
-            </PageWrapper>
-          }
-        />
-        <Route
-          path="/zip"
-          element={
-            <PageWrapper>
-              <ZipFolder />
-            </PageWrapper>
-          }
-        />
-      </Routes>
-    </AnimatePresence>
+    <div className="page-container">
+      <div className="page-header">
+        <h2>Operations Toolkit</h2>
+        <p>Please select an operation to begin.</p>
+      </div>
+
+      {/* A new grid to display the 3 options */}
+      <div className="home-grid">
+        
+        {/* Combine Card */}
+        <Link to="/combine" className="home-card">
+          <DocumentIcon />
+          <h3>Combine PDFs</h3>
+          <p>Merge multiple PDF files into one.</p>
+        </Link>
+        
+        {/* Compress Card */}
+        <Link to="/compress" className="home-card">
+          <FileIcon /> {/* Using FileIcon for Compress */}
+          <h3>Process PDFs</h3>
+          <p>Apply compression or flatten fields.</p>
+        </Link>
+        
+        {/* Zip Card */}
+        <Link to="/zip" className="home-card">
+          <ZipIcon />
+          <h3>Zip Folder</h3>
+          <p>Compress an entire folder into a .zip.</p>
+        </Link>
+
+      </div>
+    </div>
   );
 };
 

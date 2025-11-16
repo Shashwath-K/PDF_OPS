@@ -1115,14 +1115,76 @@ html.dark .form-select {
 /* ================================================== */
 /* 11.5. CONTAINER QUERIES (NEW)                      */
 /* ================================================== */
-/*
- * These rules apply based on the *width of the container* * they are in, (e.g., .content-card), not the whole browser viewport.
- * We defined .content-card as a container in Section 5.
-*/
+/* ================================================== */
+/* 11.5 HOME PAGE GRID (New)                          */
+/* ================================================== */
 
-/* When the card itself is narrow (e.g., mobile or
-   in a narrow desktop window), stack the page buttons.
-*/
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.home-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border-radius: 1rem;
+  background-color: var(--color-bg-hover);
+  border: 2px solid var(--color-border);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  min-height: 200px; /* Give them a uniform height */
+}
+
+.home-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary-main);
+  background-color: var(--color-bg-card);
+}
+
+.home-card svg {
+  width: 4rem; /* 64px icon */
+  height: 4rem;
+  color: var(--color-primary-main);
+  margin-bottom: 1rem;
+}
+
+.home-card h3 {
+  color: var(--color-text-main);
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem 0;
+}
+
+.home-card p {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive grid for mobile */
+@media (max-width: 768px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .home-card {
+    min-height: auto;
+    padding: 1.5rem;
+  }
+  .home-card svg {
+    width: 3rem;
+    height: 3rem;
+  }
+  .home-card h3 {
+    font-size: 1.25rem;
+  }
+}
 @container content-card (max-width: 600px) {
   .page-action-buttons {
     flex-direction: column;

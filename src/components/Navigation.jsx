@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { SunIcon, MoonIcon } from "@heroicons/react/24/solid";
-import logo from "../assets/logo/mini-logo-ext.png"; // Your logo path
+import logo from "../assets/logo/mini-logo-ext.png"; 
 
 const Navigation = ({ toggleTheme, currentTheme }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -13,10 +13,10 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
   return (
     <div className="container nav-container">
       
-      {/* --- FIX 1: This is now a single NavLink --- */}
+      {/* This logo link correctly points to "/" (the new Home Page) */}
       <NavLink 
         to="/" 
-        className="nav-logo-group" // This class now styles the NavLink
+        className="nav-logo-group"
         onClick={handleLinkClick}
       >
         <img src={logo} alt="base_logo" className="nav-logo-img" />
@@ -25,11 +25,14 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
         </span>
       </NavLink>
 
-      {/* --- Desktop Menu (hidden on mobile) --- */}
+      {/* --- Desktop Menu --- */}
       <ul className="nav-menu">
         <li className="nav-menu-item">
+          
+          {/* --- THIS IS THE FIX --- */}
+          {/* The "Combine" link now points to "/combine" */}
           <NavLink
-            to="/"
+            to="/combine"
             className={({ isActive }) =>
               `nav-menu-link ${isActive ? "active" : ""}`
             }
@@ -72,7 +75,7 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
         </li>
       </ul>
 
-      {/* --- Mobile Menu & Toggle (hidden on desktop) --- */}
+      {/* --- Mobile Menu & Toggle --- */}
       <button
         className={`nav-toggle ${isMenuOpen ? "open" : ""}`}
         onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -84,13 +87,13 @@ const Navigation = ({ toggleTheme, currentTheme }) => {
         <span className="nav-toggle-bar bar-3"></span>
       </button>
 
-      {/* --- This is the slide-out menu for mobile --- */}
+      {/* Mobile slide-out menu */}
       <div className={`nav-mobile-menu ${isMenuOpen ? "open" : ""}`}>
-        <NavLink to="/" className="nav-mobile-link" onClick={handleLinkClick}>Combine</NavLink>
+        {/* --- THIS IS THE FIX --- */}
+        <NavLink to="/combine" className="nav-mobile-link" onClick={handleLinkClick}>Combine</NavLink>
         <NavLink to="/compress" className="nav-mobile-link" onClick={handleLinkClick}>Compress</NavLink>
         <NavLink to="/zip" className="nav-mobile-link" onClick={handleLinkClick}>Zip Folder</NavLink>
         
-        {/* --- FIX 2: Added the theme toggle button here --- */}
         <button
           onClick={toggleTheme}
           className="theme-toggle-btn"
