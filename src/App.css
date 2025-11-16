@@ -511,12 +511,13 @@ html.dark .app-header {
 }
 .nav-menu-link:hover,
 .nav-menu-link:focus-visible {
-  color: var(--color-primary-main);
-  background-color: var(--color-bg-hover);
   text-decoration: none;
   outline: none;
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-lg), 0 0 25px var(--color-primary-light);
+  border-color: var(--color-primary-main);
+  background-color: var(--color-bg-card);
   transform: translateY(-2px);
-  /* (NEW) Don't show box-shadow on focus-visible if :hover is also active */
   box-shadow: none; 
 }
 .nav-menu-link.active,
@@ -1113,52 +1114,115 @@ html.dark .form-select {
 }
 
 /* ================================================== */
-/* 11.5. CONTAINER QUERIES (NEW)                      */
-/* ================================================== */
-/* ================================================== */
-/* 11.5 HOME PAGE GRID (New)                          */
+/* 11.5 HOME PAGE GRID (Complex Version)              */
 /* ================================================== */
 
 .home-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  
+  /* This is a more complex and responsive grid.
+    It will automatically fit as many columns as it can (with a 280px min)
+    and then wrap, replacing the need for a media query.
+  */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  
   gap: 1.5rem;
   margin-top: 2rem;
-  text-align: center;
 }
 
 .home-card {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  border-radius: 1rem;
+  justify-content: flex-start; /* Align content to the top */
+  padding: 2.5rem 2rem;
+  border-radius: 1.25rem; /* Slightly larger radius */
   background-color: var(--color-bg-hover);
   border: 2px solid var(--color-border);
   text-decoration: none;
-  transition: all 0.3s ease;
-  min-height: 200px; /* Give them a uniform height */
+  text-align: center;
+  
+  /* This is required for the shine animation */
+  position: relative;
+  overflow: hidden;
+  
+  /* More specific transitions for a smoother feel */
+  transition: transform 0.3s ease, 
+              box-shadow 0.3s ease, 
+              border-color 0.3s ease, 
+              background-color 0.3s ease;
 }
 
+/* --- Complex Hover Effects --- */
+
 .home-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  /* Lift and scale the card */
+  transform: translateY(-8px) scale(1.02);
+  text-decoration: none;
+  /* Add a "glow" effect using the primary color */
+  box-shadow: var(--shadow-lg), 0 0 25px var(--color-primary-light);
+  
   border-color: var(--color-primary-main);
   background-color: var(--color-bg-card);
 }
+
+/* --- Shine Animation --- */
+.home-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%; /* Start off-screen */
+  width: 75%;
+  height: 100%;
+  
+  /* A semi-transparent white gradient for the shine */
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.2), 
+    transparent
+  );
+  
+  /* Angle the shine */
+  transform: skewX(-25deg);
+  
+  /* Set a slower transition for the shine */
+  transition: left 0.6s ease;
+}
+
+.home-card:hover::after {
+  /* Move the shine across the card on hover */
+  left: 125%;
+}
+
+/* --- Animated Internal Elements --- */
 
 .home-card svg {
   width: 4rem; /* 64px icon */
   height: 4rem;
   color: var(--color-primary-main);
   margin-bottom: 1rem;
+  
+  /* Add transition for the icon */
+  transition: transform 0.3s ease;
+}
+
+.home-card:hover svg {
+  /* Scale the icon on hover */
+  transform: scale(1.15);
 }
 
 .home-card h3 {
   color: var(--color-text-main);
   font-size: 1.5rem;
   margin: 0 0 0.5rem 0;
+  
+  /* Add transition for the text color */
+  transition: color 0.3s ease;
+}
+
+.home-card:hover h3 {
+  /* Change text color on hover */
+  color: var(--color-primary-main);
 }
 
 .home-card p {
@@ -1167,15 +1231,12 @@ html.dark .form-select {
   margin: 0;
 }
 
-/* Responsive grid for mobile */
-@media (max-width: 768px) {
-  .home-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
+/* The auto-fit grid handles the column layout, 
+  but we still want to shrink the padding and icons on small screens.
+*/
+@media (max-width: 640px) {
   .home-card {
-    min-height: auto;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
   }
   .home-card svg {
     width: 3rem;
@@ -1185,32 +1246,6 @@ html.dark .form-select {
     font-size: 1.25rem;
   }
 }
-@container content-card (max-width: 600px) {
-  .page-action-buttons {
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-  .btn-full-width {
-    /* (NEW) Ensure full-width buttons don't get *too* huge */
-    font-size: 1rem;
-  }
-  .page-header h2 {
-    font-size: 1.75rem;
-  }
-  .page-header p {
-    font-size: 1rem;
-  }
-  .compress-options {
-    padding: var(--space-md);
-  }
-  .compress-options h3 {
-    font-size: 1.25rem;
-  }
-  .form-check-label {
-    font-size: 1rem;
-  }
-}
-
 
 /* ================================================== */
 /* 12. ALERTS & MESSAGES                             */
