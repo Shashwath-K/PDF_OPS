@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { motion } from "framer-motion";
+// 1. Import Router, Routes, Route, AND useLocation
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+// 2. Import AnimatePresence and motion
+import { motion, AnimatePresence } from "framer-motion";
 import "./App.css";
-// --- 1. Updated Imports (based on new structure) ---
-import PdfMain from "./layout/PdfMain";
+
+// --- Import all pages for the router ---
+import PdfMain from "./layout/PdfMain"; // This is now the "Home" page
 import PdfCombine from "./pages/PdfCombine"; 
 import PdfCompress from "./pages/PdfCompress"; 
 import ZipFolder from "./pages/ZipFolder"; 
@@ -12,12 +15,10 @@ import Footer from "./components/Footer";
 import WelcomeLoader from "./components/WelcomeLoader";
 import ScrollToTop from "./components/ScrollToTop";
 
-// --- 2. Theme Hook (for consistent light/dark mode) ---
-// This hook manages the theme state and persists it to localStorage.
+// --- Theme Hook (no change) ---
 const useTheme = () => {
   const [theme, setTheme] = useState(() => {
     const savedTheme = localStorage.getItem("theme");
-    // Check for saved theme or system preference
     return savedTheme
       ? savedTheme
       : window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -42,7 +43,22 @@ const useTheme = () => {
   return [theme, toggleTheme];
 };
 
+// --- 3. PageWrapper (moved from old PdfMain.jsx) ---
+const PageWrapper = ({ children }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 15 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -15 }}
+    transition={{ duration: 0.25, ease: "easeInOut" }}
+  >
+    {children}
+  </motion.div>
+);
+
 const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
+  // 4. Get the location here for AnimatePresence
+  const location = useLocation();
+
   return (
     <>
       <ScrollToTop scrollRef={mainRef} />
@@ -51,16 +67,52 @@ const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
         <Navigation toggleTheme={toggleTheme} currentTheme={currentTheme} />
       </header>
 
-      {/* --- THIS IS THE FIX --- */}
-      {/* 1. Use .app-main to control layout and centering */}
       <main ref={mainRef} className="app-main">
-        {/* 2. .content-card is now centered by .app-main */}
         <section className="content-card">
-          <PdfMain />
+          
+          {/* 5. All Routing logic is now in App.jsx */}
+          <AnimatePresence mode="wait">
+            <Routes location={location} key={location.pathname}>
+              {/* The new "Home" page is at "/" */}
+              <Route
+                path="/"
+                element={
+                  <PageWrapper>
+                    <PdfMain />
+                  </PageWrapper>
+                }
+              />
+              {/* The 3 operations are on their own routes */}
+              <Route
+                path="/combine"
+                element={
+                  <PageWrapper>
+                    <PdfCombine />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/compress"
+                element={
+                  <PageWrapper>
+                    <PdfCompress />
+                  </PageWrapper>
+                }
+              />
+              <Route
+                path="/zip"
+                element={
+                  <PageWrapper>
+                    <ZipFolder />
+                  </PageWrapper>
+                }
+              />
+            </Routes>
+          </AnimatePresence>
+          
         </section>
       </main>
       
-      {/* 3. The footer class remains .app-footer, so no change needed */}
       <Footer /> 
     </>
   );
@@ -68,14 +120,16 @@ const AppContent = ({ mainRef, toggleTheme, currentTheme }) => {
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [theme, toggleTheme] = useTheme(); // Use the theme hook
-  const mainRef = useRef(null); // The ref is defined here
+  const [theme, toggleTheme] = useTheme();
+  const mainRef = useRef(null);
 
   useEffect(() => {
     if ("scrollRestoration" in window.history) {
       try {
         window.history.scrollRestoration = "manual";
-      } catch {}
+      } catch {
+        // Ignore the error
+      }
     }
   }, []);
 
@@ -86,9 +140,10 @@ const App = () => {
       {isLoading ? (
         <WelcomeLoader onAnimationComplete={handleLoadingComplete} />
       ) : (
+        // Router wraps AppContent, so useLocation() works
         <Router>
           <AppContent
-            mainRef={mainRef} // The ref is passed down here
+            mainRef={mainRef}
             toggleTheme={toggleTheme}
             currentTheme={theme}
           />
